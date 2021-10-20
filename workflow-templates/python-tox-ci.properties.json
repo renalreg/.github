@@ -1,0 +1,13 @@
+{
+    "name": "Python Tox Multiplatform Workflow",
+    "description": "Python Tox runner for multiple OS and Python versions",
+    "iconName": "python-5",
+    "categories": [
+        "Python"
+    ],
+    "filePatterns": [
+        "setup.py",
+        "pyproject.toml",
+        "tox.ini"
+    ]
+}
