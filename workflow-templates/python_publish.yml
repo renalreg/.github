@@ -1,0 +1,71 @@
+name: Python Publish
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform:
+          - ubuntu-latest
+        python-version: ["3.11"]
+
+    steps:
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REN_APP_ID }}
+          private_key: ${{ secrets.REN_APP_KEY }}
+
+      - name: Run Python Test Workflow
+        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: renalreg
+          repo: ${{ github.repository }}
+          github_token: ${{ steps.generate-token.outputs.token }}
+          workflow_file_name: python_test.yml
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set Up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+
+      - name: Build with Poetry
+        run: poetry build
+
+      - name: Upload the dist
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./dist
+
+  publish:
+    needs: ["build"]
+    environment: publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download dist from build job
+        uses: actions/download-artifact@v3
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: artifact
