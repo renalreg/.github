@@ -24,8 +24,6 @@ Renal Registry
 * X - [@UKKidney](https://twitter.com/@UKKidney)
 * E-mail -  rrsystems@renalregistry.nhs.uk
 
-Project Link - [https://github.com/renalreg/ukrr_models](https://github.com/renalreg/ukrr_models)
-
 <br />
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
