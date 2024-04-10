@@ -10,12 +10,12 @@
 
 ## About The Project
 
-A standard set of workflows that should be present on all projects.
+A standard set of workflows and associated files that should be present on all projects.
 
 
 ## Usage
 
-Go to the actions tab on the project you wish to apply the action to, select new workflow, select the work flow you need from the provided list.
+To add a workflow to a repo go to the actions tab on the project you wish to apply the action to, select new workflow, select the work flow you need from the provided list. Alternatively you can clone the repo and copy the files locally before pushing.
 
 ## Contact
 
