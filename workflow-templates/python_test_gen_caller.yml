@@ -13,5 +13,5 @@ jobs:
   test:
     uses: renalreg/.github/workflows/python_test_gen.yml@main
     with:
-      python_versions: # python versions
+      python_versions: # python versions example python_versions: '3.6, 3.8, 3.9'
     # add extra steps below to run in the same environment as tests
