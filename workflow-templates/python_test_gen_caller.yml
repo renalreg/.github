@@ -1,0 +1,17 @@
+name: Python Tester
+
+on:
+  push:
+  pull_request:
+    branches:
+      - "**:**"
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    uses: renalreg/.github/workflows/python_test_gen.yml@main
+    with:
+      python_versions: # python versions
+    # add extra steps below to run in the same environment as tests
