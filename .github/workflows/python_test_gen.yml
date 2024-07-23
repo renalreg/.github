@@ -4,9 +4,10 @@ on:
   workflow_call:
     inputs:
       python_versions:
+        type: string
         description: 'Comma-separated list of Python versions to use for testing'
         required: true
-        default: None
+        default:  '["3.6"]'
 
 jobs:
   test:
