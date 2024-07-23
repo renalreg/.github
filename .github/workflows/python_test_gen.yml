@@ -7,7 +7,17 @@ on:
         type: string
         description: 'Comma-separated list of Python versions to use for testing'
         required: true
-        default:  '["3.6"]'
+        default: '["3.6"]'
+      use_poetry:
+        type: boolean
+        description: 'Whether to use Poetry for dependency management and testing defaults to true'
+        required: false
+        default: true
+      use_pip:
+        type: boolean
+        description: 'Whether to use pip for dependency management and testing (overrides use_poetry)'
+        required: false
+        default: false
 
 jobs:
   test:
@@ -32,10 +42,23 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Install and configure Poetry
-        run: python -m pip install -U pip wheel poetry
+        if: ${{ inputs.use_poetry && !inputs.use_pip }}
+        run: |
+          python -m pip install -U pip wheel poetry
+          poetry install
+          
 
-      - name: Install Dependencies
-        run: poetry install
+      - name: Install dependencies with pip
+        if: ${{ inputs.use_pip && !inputs.use_poetry }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
 
-      - name: Run Tox
+
+      - name: Run tests with Poetry
+        if: ${{ inputs.use_poetry && !inputs.use_pip }}
         run: poetry run tox
+
+      - name: Run tests with Tox (pip)
+        if: ${{ inputs.use_pip }}
+        run: tox
