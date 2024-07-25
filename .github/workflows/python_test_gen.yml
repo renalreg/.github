@@ -18,14 +18,20 @@ on:
         description: 'Whether to use pip for dependency management and testing (overrides use_poetry)'
         required: false
         default: false
+      os:
+        type: string
+        description: 'Comma-separated list of matrixs'
+        required: true
+        default: '[ubuntu-20.04, windows-latest]'
 
 jobs:
   test:
     name: Run tests
 
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:  ${{ fromJson(inputs.os) }}
         python: ${{ fromJson(inputs.python_versions) }}
 
     steps:
