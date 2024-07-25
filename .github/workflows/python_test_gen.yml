@@ -31,7 +31,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [${{ fromJSON('["' + github.event.inputs.platforms.replace(/\s+/g, '').replace(/,/g, '","') + '"]') }}]
+        os: ${{ fromJson(inputs.os) }}
         python: ${{ fromJson(inputs.python_versions) }}
 
     steps:
