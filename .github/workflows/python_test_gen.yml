@@ -22,7 +22,7 @@ on:
         type: string
         description: 'Comma-separated list of matrixs'
         required: true
-        default: '[ubuntu-20.04, windows-latest]'
+        default: '[ubuntu-20.04,windows-latest]'
 
 jobs:
   test:
@@ -31,7 +31,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os:  ${{ fromJson(inputs.os) }}
+        os: [${{ fromJSON('["' + github.event.inputs.platforms.replace(/\s+/g, '').replace(/,/g, '","') + '"]') }}]
         python: ${{ fromJson(inputs.python_versions) }}
 
     steps:
