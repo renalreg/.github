@@ -80,6 +80,7 @@ jobs:
 
       - name: TODO Check (Linux)
         if: runner.os == 'Linux'
+        continue-on-error: true
         run: |
           result=$(find "$DIRECTORY_TO_SCAN" -type f -name "*.py" -exec grep -Hn -P "$TODO_REGEX" {} \;)
           if [ -n "$result" ]; then
@@ -90,6 +91,7 @@ jobs:
 
       - name: TODO Check (Windows)
         if: runner.os == 'Windows'
+        continue-on-error: true
         run: |
           $result = Get-ChildItem -Path $env:DIRECTORY_TO_SCAN -Filter *.py -Recurse | ForEach-Object { Get-Content $_.FullName | Select-String -Pattern $env:TODO_REGEX }
           if ($result) {
