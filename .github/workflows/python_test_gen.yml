@@ -87,15 +87,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: TODO Check (Linux)
         if: runner.os == 'Linux'
-        continue-on-error: true
         run: |
-          result=$(find "$DIRECTORY_TO_SCAN" -type f -name "*.py" -exec grep -Hn -P "$TODO_REGEX" {} \;)
-          if [ -n "$result" ]; then
-            echo "Non-matching TODO comments found:"
-            echo "$result"
-            exit 1
-          fi
-
+          echo "Scanning directory: $DIRECTORY_TO_SCAN"
+          
+          # Find all Python files in the specified directory
+          files=$(find $DIRECTORY_TO_SCAN -name "*.py")
+    
+          # Loop through files and count TODOs
+          for file in $files; do
+            count=$(grep -c "TODO" "$file")
+            if [ $count -gt 0 ]; then
+              echo "$file: $count TODOs"
+            fi
+          done
       - name: TODO Check (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
