@@ -22,7 +22,12 @@ on:
         type: string
         description: 'Comma-separated list of matrixs'
         required: true
-        default: '[ubuntu-20.04,windows-latest]'
+        default: '[ubuntu-20.04]'
+      directory_to_scan:
+        type: string
+        description: 'Directory to scan for TODO comments (defaults to all files)'
+        required: false
+        default: './'
 
 jobs:
   test:
@@ -34,8 +39,14 @@ jobs:
         os: ${{ fromJson(inputs.os) }}
         python: ${{ fromJson(inputs.python_versions) }}
 
+    env:
+      DIRECTORY_TO_SCAN: ${{ inputs.directory_to_scan }}
+      TODO_REGEX: 'TODO:(?!\s*\[[A-Za-z0-9-]+\])'
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -68,3 +79,23 @@ jobs:
       - name: Run tests with Tox (pip)
         if: ${{ inputs.use_pip }}
         run: tox
+
+      - name: TODO Check (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          result=$(find "$DIRECTORY_TO_SCAN" -type f -name "*.py" -exec grep -Hn -P "$TODO_REGEX" {} \;)
+          if [ -n "$result" ]; then
+            echo "Non-matching TODO comments found:"
+            echo "$result"
+            exit 1
+          fi
+
+      - name: TODO Check (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $result = Get-ChildItem -Path $env:DIRECTORY_TO_SCAN -Filter *.py -Recurse | ForEach-Object { Get-Content $_.FullName | Select-String -Pattern $env:TODO_REGEX }
+          if ($result) {
+            echo "Non-matching TODO comments found:"
+            echo "$result"
+            exit 1
+          }

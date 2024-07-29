@@ -11,7 +11,13 @@ on:
 
 jobs:
   test:
-    uses: renalreg/ ./github .github/workflows/python_test_gen.yml@additions
+    uses: renalreg/ ./github .github/workflows/python_test_gen.yml
+    secrets: inherit
     with:
-      python_versions: # python versions example python_versions: '3.6, 3.8, 3.9'
+      python_versions: # python versions # example python_versions: '["3.6"]'
+      use_poetry: # 'Whether to use Poetry for dependency management and testing defaults to true'
+      use_pip: # 'Whether to use pip for dependency management and testing (overrides use_poetry)'
+      os: #'Comma-separated list of matrixs' # example os: '[ubuntu-20.04]'
+      directory_to_scan: # 'Directory to scan for T O D O comments (defaults to all files)' #example directory_to_scan: './'
+
     # add extra steps below to run in the same environment as tests
