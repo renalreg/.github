@@ -21,7 +21,7 @@ on:
       os:
         type: string
         description: 'Comma-separated list of matrixs'
-        required: true
+        required: false
         default: '[ubuntu-20.04]'
       directory_to_scan:
         type: string
@@ -45,8 +45,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
