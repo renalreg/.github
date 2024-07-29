@@ -39,9 +39,7 @@ jobs:
         os: ${{ fromJson(inputs.os) }}
         python: ${{ fromJson(inputs.python_versions) }}
 
-    env:
-      DIRECTORY_TO_SCAN: ${{ inputs.directory_to_scan }}
-      TODO_REGEX: 'TODO:(?!\s*\[[A-Za-z0-9-]+\])'
+
 
     steps:
       - uses: actions/checkout@v4
@@ -61,14 +59,12 @@ jobs:
         run: |
           python -m pip install -U pip wheel poetry
           poetry install
-          
 
       - name: Install dependencies with pip
         if: ${{ inputs.use_pip && !inputs.use_poetry }}
         run: |
           python -m pip install --upgrade pip
           pip install tox
-
 
       - name: Run tests with Poetry
         if: ${{ inputs.use_poetry && !inputs.use_pip }}
@@ -84,6 +80,9 @@ jobs:
     strategy:
       matrix:
         os: ${{ fromJson(inputs.os) }}
+    env:
+      DIRECTORY_TO_SCAN: ${{ inputs.directory_to_scan }}
+      TODO_REGEX: 'TODO:(?!\s*\[[A-Za-z0-9-]+\])'
     steps:
       - uses: actions/checkout@v4
       - name: TODO Check (Linux)
