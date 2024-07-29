@@ -23,11 +23,6 @@ on:
         description: 'Comma-separated list of matrixs'
         required: false
         default: "['ubuntu-20.04']"
-      directory_to_scan:
-        type: string
-        description: 'Directory to scan for TODO comments (defaults to all files)'
-        required: false
-        default: './'
 
 jobs:
   test:
@@ -73,40 +68,3 @@ jobs:
       - name: Run tests with Tox (pip)
         if: ${{ inputs.use_pip }}
         run: tox
-
-  TODO:
-    name: TODO
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ${{ fromJson(inputs.os) }}
-    env:
-      DIRECTORY_TO_SCAN: ${{ inputs.directory_to_scan }}
-      TODO_REGEX: 'TODO:(?!\s*\[[A-Za-z0-9-]+\])'
-    steps:
-      - uses: actions/checkout@v4
-      - name: TODO Check (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          echo "Scanning directory: $DIRECTORY_TO_SCAN"
-          
-          # Find all Python files in the specified directory
-          files=$(find $DIRECTORY_TO_SCAN -name "*.py")
-    
-          # Loop through files and count TODOs
-          for file in $files; do
-            count=$(grep -c "TODO" "$file")
-            if [ $count -gt 0 ]; then
-              echo "$file: $count TODOs"
-            fi
-          done
-      - name: TODO Check (Windows)
-        if: runner.os == 'Windows'
-        continue-on-error: true
-        run: |
-          $result = Get-ChildItem -Path $env:DIRECTORY_TO_SCAN -Filter *.py -Recurse | ForEach-Object { Get-Content $_.FullName | Select-String -Pattern $env:TODO_REGEX }
-          if ($result) {
-            echo "Non-matching TODO comments found:"
-            echo "$result"
-            exit 1
-          }
