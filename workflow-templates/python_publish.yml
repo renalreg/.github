@@ -49,7 +49,7 @@ jobs:
         run: poetry build
 
       - name: Upload the dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ./dist
 
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Download dist from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
