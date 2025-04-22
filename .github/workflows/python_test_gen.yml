@@ -22,7 +22,7 @@ on:
         type: string
         description: 'Comma-separated list of matrixs'
         required: false
-        default: "['ubuntu-20.04']"
+        default: "['ubuntu-latest']"
 
 jobs:
   test:
