@@ -1,0 +1,13 @@
+name: python_release_caller
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflow-templates/python_release.yml
+    secrets: inherit

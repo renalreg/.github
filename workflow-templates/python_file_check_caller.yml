@@ -1,0 +1,10 @@
+name: python_file_check_caller
+
+on:
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflow-templates/python_file_check.yml
+    secrets: inherit

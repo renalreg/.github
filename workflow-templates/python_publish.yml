@@ -11,15 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        platform:
-          - ubuntu-latest
-        python-version: ["3.11"]
-
     steps:
       - name: Generate Token
-        uses: tibdex/github-app-token@v1
+        uses: tibdex/github-app-token@v2
         id: generate-token
         with:
           app_id: ${{ secrets.REN_APP_ID }}
@@ -37,13 +31,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set Up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Set Up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version-file: 'pyproject.toml'
 
       - name: Install Poetry
-        uses: Gr1N/setup-poetry@v8
+        uses: Gr1N/setup-poetry@v9
 
       - name: Build with Poetry
         run: poetry build

@@ -15,6 +15,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REN_APP_ID }}
+          private_key: ${{ secrets.REN_APP_KEY }}
+      
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -31,4 +38,5 @@ jobs:
         uses: google-github-actions/release-please-action@v3
         with:
           release-type: python
+          token: ${{ steps.generate-token.outputs.token }}
           package-name: ${{ steps.extract_package_name.outputs.package_name }}

@@ -1,0 +1,10 @@
+name: conventional_pr_title_caller
+
+on:
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflow-templates/conventional_pr_title.yml
+    secrets: inherit

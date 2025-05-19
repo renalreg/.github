@@ -1,0 +1,13 @@
+name: python_publish_caller
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflow-templates/python_publish.yml
+    secrets: inherit

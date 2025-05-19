@@ -2,10 +2,7 @@ name: Python File Check
 
 on:
   pull_request:
-    branches:
-      - main
-
-  workflow_dispatch:
+    branches: [ $default-branch ]
 
 jobs:
   file_check:
@@ -16,7 +13,7 @@ jobs:
 
       - name: Files Included Check
         id: file_check
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: "README.md, CHANGELOG.md, pyproject.toml, tox.ini, LICENSE"
 

@@ -2,19 +2,15 @@ name: Conventional PR Title
 
 on:
   pull_request:
-    branches:
-      - main
-
-  workflow_dispatch:
+    branches: [ $default-branch ]
 
 jobs:
-  lint:
+  main:
+    name: Validate PR title
     runs-on: ubuntu-latest
     permissions:
-      statuses: write
+      pull-requests: read
     steps:
-      - name: Check Title
-        id: check_title
-        uses: aslafy-z/conventional-pr-title-action@v3
+      - uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
