@@ -3,7 +3,7 @@ name: python_release_caller
 on:
   push:
     branches:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 

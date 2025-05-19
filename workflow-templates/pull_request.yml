@@ -3,7 +3,7 @@ name: Pull Request
 on:
   push:
     branches-ignore:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 

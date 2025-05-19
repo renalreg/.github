@@ -3,7 +3,7 @@ name: Python Release
 on:
   push:
     branches:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 
@@ -21,7 +21,7 @@ jobs:
         with:
           app_id: ${{ secrets.REN_APP_ID }}
           private_key: ${{ secrets.REN_APP_KEY }}
-      
+
       - name: Checkout
         uses: actions/checkout@v4
 

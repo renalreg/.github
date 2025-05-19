@@ -3,7 +3,7 @@ name: python_test_caller
 on:
   pull_request:
     branches:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 

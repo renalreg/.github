@@ -3,7 +3,7 @@ name: todo_check_caller
 on:
   pull_request:
     branches:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 

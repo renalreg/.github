@@ -3,7 +3,7 @@ name: Python Test
 on:
   pull_request:
     branches:
-      - main
+      - [$default-branch]
 
   workflow_dispatch:
 
