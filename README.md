@@ -13,11 +13,20 @@
 A standard set of workflows and associated files that we should strive to reuse where possible.
 
 ## Usage
+There are three main ways to incorporate the actions from this repository into another project:
 
-There are two ways in which you can add the actions in this repo to another. Firstly, if you are using a public repo you should be able to go to the actions tab on the project you wish to apply the action to, select new workflow, and look for the actions by the UK Kidney Association. Alternatively, and certainly in the case of private repos, you can clone/copy and paste the workflows into your project. If you are taking this approach you should make sure to copy the caller not the main workflow..... unless you need to.
+* Using GitHub’s Actions Marketplace (for public repositories)
+If your project is public, you can easily add these actions via the GitHub Actions tab. Navigate to the Actions tab in your repository, select New workflow, and search for actions published by the UK Kidney Association.
 
-The reason to include the caller rather than the workflow itself is that we can make changes to workflows in a single repo and the change will propagate to all of the other repos. Because this is the behavior we are striving for the workflows here are deliberately generic and as result might not be ideal for all projects but should cover the majority.
+* Manual Copy (especially for private repositories)
+For private repositories or custom setups, you can manually copy the workflow files into your project.
+When doing this, make sure to copy the "caller" workflow, not the main workflow—unless you have a specific reason to modify the main workflow directly.
 
+* Using Workflow Templates in .github Directory
+Some workflow templates use the .github directory to manage reusable workflows. You can copy these templates into your project and fill out the required fields. This will enable your project to correctly invoke the workflows.
+
+Why use the "caller" workflow?
+By including only the caller in your repository, updates made to the main workflows in this central repo will automatically propagate to all consuming repositories. This design promotes maintainability and consistency across multiple projects. As a result, the workflows here are intentionally generic to support a wide range of use cases—but may require some customization for specific project needs.
 ## Conventional Commits
 
 A lot of the workflows in this repo rely on the use of conventional commits. Check out the following documentation

@@ -1,0 +1,72 @@
+name: Reusable Python Release
+
+on:
+  workflow_call:
+    secrets:
+      REN_APP_ID:
+        required: true
+      REN_APP_KEY:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REN_APP_ID }}
+          private_key: ${{ secrets.REN_APP_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Build Backend and Install Tool
+        id: backend
+        run: |
+          BACKEND=$(grep 'build-backend' pyproject.toml | cut -d '"' -f2)
+      
+          if [[ "$BACKEND" == "poetry.core.masonry.api" || "$BACKEND" == "poetry.core" ]]; then
+            echo "Using Poetry backend"
+            echo "backend=poetry" >> $GITHUB_OUTPUT
+          elif [[ "$BACKEND" == "hatchling.build" ]]; then
+            echo "Using Hatchling backend (via uv)"
+            echo "backend=uv" >> $GITHUB_OUTPUT
+          else
+            echo "Unsupported build-backend: $BACKEND"
+            exit 1
+          fi
+
+      - name: Install Poetry
+        if: ${{ steps.backend.outputs.backend == 'poetry' }}
+        uses: Gr1N/setup-poetry@v8
+
+      - name: Install uv
+        if: ${{ steps.backend.outputs.backend == 'uv' }}
+        uses: astral-sh/setup-uv@v6
+
+      - name: Extract Package Name
+        id: extract_package_name
+        run: |
+          BACKEND=${{ steps.backend.outputs.backend }}
+          if [[ "$BACKEND" == "poetry" ]]; then
+            PACKAGE_NAME=$(poetry version | cut -d ' ' -f 1)
+          elif [[ "$BACKEND" == "uv" ]]; then
+            PACKAGE_NAME=$(uv version | cut -d ' ' -f 1)
+          else
+            echo "Unsupported backend: $BACKEND"
+            exit 1
+          fi
+          echo "package_name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: python
+          token: ${{ steps.generate-token.outputs.token }}
+          package-name: ${{ steps.extract_package_name.outputs.package_name }}

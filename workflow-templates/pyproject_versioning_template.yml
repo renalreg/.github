@@ -1,0 +1,18 @@
+name: Python Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses:  renalreg/.github/.github/workflows/pyproject_versioning.yml@main
+    secrets:
+      REN_APP_ID: ${{ secrets.REN_APP_ID }}
+      REN_APP_KEY: ${{ secrets.REN_APP_KEY }}

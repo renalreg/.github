@@ -1,0 +1,4 @@
+{
+  "name": "Python Versioning",
+  "description": "automatic versioning using uv or tox"
+}
