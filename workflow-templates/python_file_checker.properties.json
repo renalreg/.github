@@ -1,0 +1,4 @@
+{
+  "name": "UKKA Python File Check",
+  "description": "Check for essential files and ensures the README isn't empty"
+}

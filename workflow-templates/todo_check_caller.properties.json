@@ -1,4 +1,0 @@
-{
-  "name": "UKAA TODO Checker",
-  "description": "Workflow for ensuring TODO's are attached to tickets or issues. TODO should take the format TODO: [XXX-NN] where x is the ticket or issue reference and n is the number. For example [TNG-15]"
-}

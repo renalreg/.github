@@ -7,36 +7,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate Token
-        uses: tibdex/github-app-token@v1
-        id: generate-token
-        with:
-          app_id: ${{ secrets.REN_APP_ID }}
-          private_key: ${{ secrets.REN_APP_KEY }}
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Poetry
-        uses: Gr1N/setup-poetry@v8
-
-      - name: Extract Package Name
-        id: extract_package_name
-        run: |
-          PACKAGE_NAME=$(poetry version | cut -d ' ' -f 1)
-          echo "package_name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
-
-      - name: Release Please
-        uses: google-github-actions/release-please-action@v3
-        with:
-          release-type: python
-          token: ${{ steps.generate-token.outputs.token }}
-          package-name: ${{ steps.extract_package_name.outputs.package_name }}
+  call-workflow:
+    name: Building release branch and updating CHANGELOG.md
+    uses: renalreg/.github/.github/workflow-templates/python_release.yml@main
+    secrets: inherit

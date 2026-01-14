@@ -1,0 +1,14 @@
+name: Python File Check
+
+on:
+  pull_request:
+    branches: 
+      - [$default-branch]
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Checking for required files
+    uses: renalreg/.github/.github/workflow-templates/python_file_check.yml@main
+    secrets: inherit

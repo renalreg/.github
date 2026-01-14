@@ -8,58 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Generate Token
-        uses: tibdex/github-app-token@v2
-        id: generate-token
-        with:
-          app_id: ${{ secrets.REN_APP_ID }}
-          private_key: ${{ secrets.REN_APP_KEY }}
-
-      - name: Run Python Test Workflow
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
-        with:
-          owner: renalreg
-          repo: ${{ github.repository }}
-          github_token: ${{ steps.generate-token.outputs.token }}
-          workflow_file_name: python_test.yml
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Set Up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: 'pyproject.toml'
-
-      - name: Install Poetry
-        uses: Gr1N/setup-poetry@v9
-
-      - name: Build with Poetry
-        run: poetry build
-
-      - name: Upload the dist
-        uses: actions/upload-artifact@v4
-        with:
-          path: ./dist
-
-  publish:
-    needs: ["build"]
-    environment: publish
-    runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-
-    steps:
-      - name: Download dist from build job
-        uses: actions/download-artifact@v4
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: artifact
+  call-workflow:
+    name: Publish build to pypi
+    uses: renalreg/.github/.github/workflow-templates/python_publish.yml@main
+    secrets: inherit

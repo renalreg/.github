@@ -1,0 +1,35 @@
+name: Python Release
+
+on:
+  workflow_call:
+    inputs:
+
+      release_type:
+        type: string
+        default: "simple"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REN_APP_ID }}
+          private_key: ${{ secrets.REN_APP_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          release-type: ${{ inputs.release_type }}

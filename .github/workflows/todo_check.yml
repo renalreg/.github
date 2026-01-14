@@ -1,0 +1,48 @@
+name: TODO Check
+
+on:
+  workflow_call:
+    inputs:
+
+      directory_to_scan:
+        type: string
+        default: ./
+
+      file_extensions:
+        type: string
+        default: "md"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DIRECTORY_TO_SCAN: ${{ inputs.directory_to_scan }}
+      FILE_EXTENSIONS: ${{ inputs.file_extensions }}
+      TODO_REGEX: 'TODO:(?!\s*\[[A-Za-z0-9-]+\])'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: TODO Check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IFS=',' read -ra EXTENSIONS <<< "$FILE_EXTENSIONS"
+
+          matches=""
+
+          for ext in "${EXTENSIONS[@]}"; do
+            ext="$(echo "$ext" | xargs)"  # trim whitespace
+            matches+=$(find "$DIRECTORY_TO_SCAN" -type f -name "*.${ext}" \
+              -exec grep -Hn -P "$TODO_REGEX" {} + || true)
+          done
+
+          if [[ -n "$matches" ]]; then
+            echo "::error:: Non-matching TODO comments found:"
+            echo "$matches"
+            exit 1
+          fi
+

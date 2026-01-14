@@ -2,15 +2,13 @@ name: Conventional PR Title
 
 on:
   pull_request:
-    branches: [$default-branch]
+    branches: 
+      - [$default-branch]
+
+  workflow_dispatch:
 
 jobs:
-  main:
-    name: Validate PR title
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    steps:
-      - uses: amannn/action-semantic-pull-request@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  call-workflow:
+    name: Check PR title meets conventional commit standards
+    uses: renalreg/.github/.github/workflow-templates/conventional_pr_title.yml@main
+    secrets: inherit

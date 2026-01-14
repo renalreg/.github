@@ -1,4 +1,4 @@
 {
   "name": "UKAA Python Test",
-  "description": "Python Tox runner for multiple OS and Python versions"
+  "description": "Runs test commands in Python, with options to run across multiple OS, python versions and user defined package management system. Runs on PRs to the default branch."
 }

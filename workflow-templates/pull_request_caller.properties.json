@@ -1,4 +1,0 @@
-{
-  "name": "UKKA Auto PR Caller",
-  "description": "!!Experimental!! Automatically creates a pull request for changes. You will also need to include the template which is in the .github repo"
-}

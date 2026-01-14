@@ -1,4 +1,4 @@
-<a name="readme-top"></a>
+<a id="readme-top"></a>
 
 <div align='center'>
 
@@ -10,89 +10,181 @@
 
 ## About The Project
 
-A standard set of workflows and associated files that we should strive to reuse where possible.
-
-## Usage
-
-There are two ways in which you can add the actions in this repo to another. Firstly, if you are using a public repo you should be able to go to the actions tab on the project you wish to apply the action to, select new workflow, and look for the actions by the UK Kidney Association. Alternatively, and certainly in the case of private repos, you can clone/copy and paste the workflows into your project. If you are taking this approach you should make sure to copy the caller not the main workflow..... unless you need to.
-
-The reason to include the caller rather than the workflow itself is that we can make changes to workflows in a single repo and the change will propagate to all of the other repos. Because this is the behavior we are striving for the workflows here are deliberately generic and as result might not be ideal for all projects but should cover the majority.
+A sensible set of standard workflows and associated files for reuse in all UKKA repos. The templates are a starting point and allow for customisation where a project is outside the bounds of what is normal.
 
 ## Conventional Commits
 
 A lot of the workflows in this repo rely on the use of conventional commits. Check out the following documentation
 
-- [**Conventional Commits**](https://www.conventionalcommits.org/en/v1.0.0/)
-- [**Conventional Commits for VSCode**](https://marketplace.visualstudio.com/items?itemName=vivaxy.vscode-conventional-commits)
+- [**Conventional commits**](https://www.conventionalcommits.org/en/v1.0.0/)
+- [**Conventional commits for VSCode**](https://marketplace.visualstudio.com/items?itemName=vivaxy.vscode-conventional-commits)
   <br />
 
 ## Squash and Merge
 
-If you have read the conventional commits documentation you will know that conventional commits go hand in hand with squash and merge. The workflows here also expect that to be the merging strategy. If you aren't yet in the know have a read
+Conventional commits go hand in hand with the squash and merge and the workflows here also expect that to be the merging strategy.
 
-- [**Squash and Merge**](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits)
+- [**Squash and merge**](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits)
 
-## Available Workflows
+## Usage
 
-Below is a summary of the workflows provided in this repository:
+For public repos you can add the workflow templates via the actions tab.
 
-## Conventional PR Title
+- [**Choosing and using a workflow template**](https://docs.github.com/en/actions/how-tos/write-workflows/use-workflow-templates#choosing-and-using-a-workflow-template)
 
-Checks that pull request titles follow the Conventional Commits standard. Runs on PRs to the default branch.
+You can also copy and paste the templates into any repo you wish without the need to use the github UI.
 
-- **caller path**: `.github/workflow-templates/conventional_pr_title_caller.yml`
-- **consumed actions**: [action-semantic-pull-request](https://github.com/amannn/action-semantic-pull-request)
+## Available Workflows Templates
 
-## Pull Request
+- <a href="#python_test">**UKKA Python Test**</a>
+- <a href="#python_release">**UKKA Release**</a>
+- <a href="#python_publish">**UKKA Publish**</a>
+- <a href="#todo_check">**UKKA TODO Checker**</a>
+- <a href="#file_check">**UKKA Python File Checker**</a>
+- <a href="#pr_title">**UKKA Conventional PR Title**</a>
+- <a href="#auto_pr">**UKKA Auto Pull Requests**</a>
 
-Automates the creation and management of pull requests, including branch name extraction and token generation. Runs on pushes (except to the default branch) and can be manually triggered.
+<a id="python_test"></a>
 
-- **caller path**: `.github/workflow-templates/pull_request_caller.yml`
-- **consumed actions**: [actions/checkout](https://github.com/actions/checkout), [tibdex/github-app-token](https://github.com/tibdex/github-app-token)
+## UKKA Python Test
 
-## Python File Check
+Runs test commands in Python, with options to run across multiple OS, python versions and user defined package management system. Runs on PRs to the default branch.
 
-Ensures required files (README, CHANGELOG, etc.) are present and not empty in a PR. Runs on PRs to the default branch.
+**Consumed actions**: 
+- [**actions/checkout**](https://github.com/actions/checkout)
+- [**actions/setup-python**](https://github.com/actions/setup-python)
 
-- **caller path**: `.github/workflow-templates/python_file_check_caller.yml`
-- **consumed actions**: [actions/checkout](https://github.com/actions/checkout), [andstor/file-existence-action](https://github.com/andstor/file-existence-action)
+<br />
+
+**Example Options**
+
+```yaml
+with:
+      python_versions: '["3.10", "3.11"]'
+        # Description: Python versions to test under 
+        # Default: current lowest supported python version 
+      os: '["windows-latest", "ubuntu-latest"]'
+        # Description: Comma-separated list of operating systems to test against 
+        # Default: ["ubuntu-latest"]
+      package_manager_command: "pip install poetry"
+        # Description: Command to install additional package manager 
+        # Default: ""
+      install_command: "poetry install --no-interaction"
+        # Description: The command issued to install python packages 
+        # Default: "pip install -r requirements.txt"
+      test_command: "poetry run tox"
+        # Description: The command used to run the test suite
+        # Default: "pytest"
+```
+
+<a id="python_release"></a>
+
+## Python Release 
+
+Handles Python release automation, including version bumping and changelog generation. Runs on pushes to the default branch.
+
+This repo is heavily reliant on the Release Please action which uses release types to set a sensible set of default files to interact with depending on the coding language used within the repo.
+
+- [**Action release types**](https://github.com/googleapis/release-please-action#release-types-supported)
+
+<br />
+
+**Consumed actions**: 
+- [**tibdex/github-app-token**](https://github.com/tibdex/github-app-token) 
+- [**actions/checkout**](https://github.com/actions/checkout)
+- [**googleapis/release-please-action**](https://github.com/googleapis/release-please-action)
+
+<br />
+
+**Example Options**
+
+```yaml
+with:
+      release_type: "python"
+        # Description: Built in release strategy
+        # Default: "simple"
+```
+
+<a id="python_publish"></a>
 
 ## Python Publish
 
-Publishes a Python package on release and triggers tests. Runs on published releases and can be manually triggered.
+Publishes a Python package and runs on published releases.
 
-- **caller path**: `.github/workflow-templates/python_publish_caller.yml`
-- **consumed actions**: [tibdex/github-app-token](https://github.com/tibdex/github-app-token), [convictional/trigger-workflow-and-wait](https://github.com/convictional/trigger-workflow-and-wait), [actions/checkout](https://github.com/actions/checkout), [actions/setup-python](https://github.com/actions/setup-python), [Gr1N/setup-poetry](https://github.com/Gr1N/setup-poetry)
+**Consumed actions**: 
+- [**tibdex/github-app-token**](https://github.com/tibdex/github-app-token) 
+- [**actions/checkout**](https://github.com/actions/checkout)
+- [**actions/setup-python**](https://github.com/actions/setup-python)
 
-## Python Release
+<br />
 
-Handles Python release automation, including version bumping and changelog generation. Runs on pushes to the default branch and can be manually triggered.
+**Example Options**
 
-- **caller path**: `.github/workflow-templates/python_release_caller.yml`
-- **consumed actions**: [tibdex/github-app-token](https://github.com/tibdex/github-app-token), [actions/checkout](https://github.com/actions/checkout), [Gr1N/setup-poetry](https://github.com/Gr1N/setup-poetry), [google-github-actions/release-please-action](https://github.com/google-github-actions/release-please-action)
+```yaml
+with:
+      build_tooling_command: "pip install poetry"
+        # Description: Command to install build tooling 
+        # Default: "pip install build"
+      build_command: "poetry build"
+        # Description: The command used to build packages
+        # Default: "python -m build"
+```
 
-Handles Python release automation, including version bumping and changelog generation. Runs on pushes to the default branch and can be manually triggered.
+<a id="todo_check"></a>
 
-## Python Test
+## TODO Check
 
-Runs the Python test suite across multiple OSes and Python versions. Runs on PRs to the default branch and can be manually triggered.
+Checks for unresolved TODOs in the codebase that are not linked to a ticket. Runs on PRs to the default branch and can be manually triggered.
 
-- **caller path**: `.github/workflow-templates/python_test_caller.yml`
-- **consumed actions**: [actions/checkout](https://github.com/actions/checkout), [Gr1N/setup-poetry](https://github.com/Gr1N/setup-poetry), [actions/setup-python](https://github.com/actions/setup-python)
+**Consumed Actions**:
+- [**actions/checkout**](https://github.com/actions/checkout)
+
+```yaml
+with:
+      directory_to_scan: "./my_package"
+        # Description: The root of the directory to scan
+        # Default: "./"
+      file_extensions: "py, json, yaml"
+        # Description: A comma seperated list of file extensions to check
+        # Default: "md"
+```
+
+<a id="file_check"></a>
+
+## Python File Check
+
+Ensures required files (README, CHANGELOG, etc.) are present and not empty. Runs on PRs to the default branch. There are no options here but it is only suitable for python based repos.
+
+**Consumed actions**: 
+- [**andstor/file-existence-action**](https://github.com/andstor/file-existence-action) 
+- [**actions/checkout**](https://github.com/actions/checkout)
+
+<a id="pr_title"></a>
+
+## Conventional PR Title
+
+Checks that pull request titles follow the Conventional Commits standard. Runs on PRs to the default branch. There are no options and this will work on all repos. This is important if you want to use the auto PR workflow. 
+
+**Consumed actions**: 
+- [**action-semantic-pull-request**](https://github.com/amannn/action-semantic-pull-request)
+
+<a id="auto_pr"></a>
+
+## Auto Pull Request
+
+Automates the creation and management of pull requests, including branch name extraction and token generation. Runs on pushes (except to the default branch). There are no options and this should work on all repos but it is completely reliant on conventional commits. It also works best when each PR has a single CC which describes the aim of the PR.
+
+**Consumed Actions**: 
+- [**actions/checkout**](https://github.com/actions/checkout)
+- [**tibdex/github-app-token**](https://github.com/tibdex/github-app-token)
 
 ## Python Test Gen
 
 A reusable workflow for running tests with configurable Python versions and OS matrix. Intended to be called by other workflows.
 
-- **caller path**: `.github/workflow-templates/python_test_gen_caller.yml`
-- **consumed actions**: [actions/checkout](https://github.com/actions/checkout)
 
-## TODO Check
-
-Checks for unresolved TODOs in the codebase. Runs on PRs to the default branch and can be manually triggered.
-
-- **caller path**: `.github/workflow-templates/todo_check_caller.yml`
-- **consumed actions**: [actions/checkout](https://github.com/actions/checkout), [Gr1N/setup-poetry](https://github.com/Gr1N/setup-poetry), [actions/setup-python](https://github.com/actions/setup-python)
+**Consumed Actions**: 
+- [actions/checkout](https://github.com/actions/checkout)
 
 ##
 

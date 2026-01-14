@@ -1,4 +1,0 @@
-{
-  "name": "UKKA Conventional PR Title Caller",
-  "description": "Check that the PR title conforms to the conventional commits naming conventions"
-}

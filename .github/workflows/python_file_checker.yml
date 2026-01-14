@@ -1,0 +1,57 @@
+name: Python File Check
+
+on:
+  workflow_call:
+
+jobs:
+  file_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generic File Check
+        uses: andstor/file-existence-action@v3
+        with:
+          files: "README.md, CHANGELOG.md, LICENSE, tox.ini"
+          fail: "true"
+
+      - name: README Not Empty Check
+        shell: bash
+        run: |
+          if [ -s "README.md" ]; then
+            echo "README is not empty 👍"
+          else
+            echo "❌ README.md exists but is empty"
+            exit 1
+          fi
+
+      - name: Check Python project files
+        shell: bash
+        run: |
+          echo "Checking for valid Python project definition..."
+
+          if [ -f pyproject.toml ]; then
+            echo "✅ Found pyproject.toml"
+            exit 0
+          fi
+
+          if [ -f setup.py ]; then
+            echo "✅ Found setup.py"
+            exit 0
+          fi
+
+          if [ -f requirements.txt ]; then
+            echo "✅ Found requirements.txt"
+            exit 0
+          fi
+
+          echo "❌ No valid Python project configuration found."
+          echo ""
+          echo "Expected at least ONE of:"
+          echo "  - pyproject.toml"
+          echo "  - setup.py"
+          echo "  - requirements.txt"
+          echo ""
+          echo "Please add one of these to define dependencies."
+          exit 1

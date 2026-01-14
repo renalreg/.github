@@ -1,4 +1,0 @@
-{
-  "name": "UKKA Python Publish",
-  "description": "Automatic publish to pypi. Runs the python test workflow before publishing"
-}

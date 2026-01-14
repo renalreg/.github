@@ -1,0 +1,54 @@
+name: Python Test
+
+on:
+  workflow_call:
+    inputs:
+
+      python_versions:
+        type: string
+        default: '["3.10"]'
+      
+      os:
+        type: string
+        default: '["ubuntu-latest"]'
+      
+      package_manager_command:
+        type: string   
+        default: '' 
+      
+      install_command:
+        type: string
+        default: "pip install -r requirements.txt"
+      
+      test_command:
+        type: string
+        default: "python -m pytest"        
+
+
+jobs:
+  test:
+    runs-on: ${{ matrix.platform }}
+
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(inputs.os) }}
+        python-version: ${{ fromJSON(inputs.python_versions) }}
+
+    steps:
+      - name: Checkout   
+        uses: actions/checkout@v5
+        
+      - name: Setup Python ${{ matrix.python-version }} 
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Package Manager
+        if: inputs.package_manager_command != ''
+        run: ${{ inputs.package_manager_command }}
+
+      - name: Install Dependencies
+        run: ${{ inputs.install_command }}
+
+      - name: Run Tests
+        run: ${{ inputs.test_command }}

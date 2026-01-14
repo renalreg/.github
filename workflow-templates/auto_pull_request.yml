@@ -1,0 +1,14 @@
+name: Auto Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - [$default-branch]
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Opening PR based on conventional commit
+    uses: renalreg/.github/.github/workflows/auto_pull_request.yml@main
+    secrets: inherit

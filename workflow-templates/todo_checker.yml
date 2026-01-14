@@ -1,0 +1,14 @@
+name: TODO Checker
+
+on:
+  pull_request:
+    branches:
+      - [$default-branch]
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Finding TODOs without a ticket identifier
+    uses: renalreg/.github/.github/workflow-templates/todo_check.yml@main
+    secrets: inherit
