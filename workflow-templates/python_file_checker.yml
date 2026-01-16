@@ -13,5 +13,5 @@ on:
 jobs:
   call-workflow:
     name: Checking for required files
-    uses: renalreg/.github/.github/workflows/python_file_check.yml@main
+    uses: renalreg/.github/.github/workflows/python_file_checker.yml@main
     secrets: inherit
