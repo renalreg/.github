@@ -6,7 +6,7 @@ name: Python Release
 on:
   push:
     branches:
-      - [$default-branch]
+      - $default-branch
 
   workflow_dispatch:
 

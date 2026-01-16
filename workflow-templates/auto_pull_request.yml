@@ -6,7 +6,7 @@ name: Auto Pull Request
 on:
   push:
     branches-ignore:
-      - [$default-branch]
+      - $default-branch
 
   workflow_dispatch:
 
