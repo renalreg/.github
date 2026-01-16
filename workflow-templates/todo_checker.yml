@@ -1,3 +1,6 @@
+# 📘 Full documentation:
+# https://github.com/renalreg/.github/blob/main/README.md#python-test-workflow
+
 name: TODO Checker
 
 on:
@@ -12,3 +15,16 @@ jobs:
     name: Finding TODOs without a ticket identifier
     uses: renalreg/.github/.github/workflow-templates/todo_check.yml@main
     secrets: inherit
+
+# Optional configuration.
+# Uncomment and adjust as required.
+#
+# with:
+#
+#   directory_to_scan: "./my_package"
+#   # Description: The root of the directory to scan
+#   # Default: "./"
+#   
+#   file_extensions: "py, json, yaml"
+#   # Description: A comma seperated list of file extensions to check
+#   # Default: "md"

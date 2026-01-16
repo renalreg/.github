@@ -1,3 +1,7 @@
+# 📘 Full documentation:
+# https://github.com/renalreg/.github/blob/main/README.md#python-test-workflow
+
+
 name: Python Test
 
 on:
@@ -12,3 +16,28 @@ jobs:
     name: Running python tests
     uses: renalreg/.github/.github/workflows/python_test.yml@main
     secrets: inherit
+
+# Optional configuration.
+# Uncomment and adjust as required.
+#
+# with:
+#
+#   python_versions: '["3.10", "3.11"]'
+#   # Python versions to test against
+#   # Default: lowest supported Python version
+#
+#   os: '["ubuntu-latest", "windows-latest"]'
+#   # Operating systems to run tests on
+#   # Default: ["ubuntu-latest"]
+#
+#   package_manager_command: "pip install poetry"
+#   # Command to install an additional package manager
+#   # Default: ""
+#
+#   install_command: "poetry install --no-interaction"
+#   # Command used to install dependencies
+#   # Default: "pip install -r requirements.txt"
+#
+#   test_command: "poetry run tox"
+#   # Command used to execute the test suite
+#   # Default: "pytest"

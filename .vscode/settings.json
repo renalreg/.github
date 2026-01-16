@@ -1,5 +1,6 @@
 {
     "conventionalCommits.scopes": [
-        "Docs"
+        "Docs",
+        "Templates"
     ]
 }

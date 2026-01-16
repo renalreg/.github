@@ -1,3 +1,6 @@
+# 📘 Full documentation:
+# https://github.com/renalreg/.github/blob/main/README.md#python-test-workflow
+
 name: Python Release
 
 on:
@@ -12,3 +15,13 @@ jobs:
     name: Building release branch and updating CHANGELOG.md
     uses: renalreg/.github/.github/workflow-templates/python_release.yml@main
     secrets: inherit
+
+# Optional configuration.
+# Uncomment and adjust as required.
+#
+# with:
+#
+#   release_type: "python"
+#   # Description: Built in release strategy
+#   # Default: "simple"
+

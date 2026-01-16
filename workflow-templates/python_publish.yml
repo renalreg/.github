@@ -1,3 +1,6 @@
+# 📘 Full documentation:
+# https://github.com/renalreg/.github/blob/main/README.md#python-test-workflow
+
 name: Python Publish
 
 on:
@@ -12,3 +15,16 @@ jobs:
     name: Publish build to pypi
     uses: renalreg/.github/.github/workflow-templates/python_publish.yml@main
     secrets: inherit
+
+# Optional configuration.
+# Uncomment and adjust as required.
+#
+# with:
+#
+#   build_tooling_command: "pip install poetry"
+#   # Description: Command to install build tooling 
+#   # Default: "pip install build"
+#
+#   build_command: "poetry build"
+#   # Description: The command used to build packages
+#   # Default: "python -m build"
