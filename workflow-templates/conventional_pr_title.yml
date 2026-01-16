@@ -13,5 +13,5 @@ on:
 jobs:
   call-workflow:
     name: Check PR title meets conventional commit standards
-    uses: renalreg/.github/.github/workflow-templates/conventional_pr_title.yml@main
+    uses: renalreg/.github/.github/workflows/conventional_pr_title.yml@main
     secrets: inherit

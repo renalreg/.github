@@ -13,7 +13,7 @@ on:
 jobs:
   call-workflow:
     name: Publish build to pypi
-    uses: renalreg/.github/.github/workflow-templates/python_publish.yml@main
+    uses: renalreg/.github/.github/workflows/python_publish.yml@main
     secrets: inherit
 
 # Optional configuration.
