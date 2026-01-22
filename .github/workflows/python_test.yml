@@ -36,10 +36,16 @@ jobs:
 
     steps:
 
-      - name: Set up SSH keys
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          app-id: ${{ secrets.AL_APP_ID }}
+          private-key: ${{ secrets.AL_APP_KEY }}
+
+      - name: Authenticate GitHub HTTPS for private deps
+        run: |
+          git config --global url."https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
 
       - name: Checkout   
         uses: actions/checkout@v5
