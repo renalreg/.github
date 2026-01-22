@@ -42,39 +42,27 @@ jobs:
         with:
           app-id: ${{ secrets.AL_APP_ID }}
           private-key: ${{ secrets.AL_APP_KEY }}
+          owner: renalreg
 
       - name: Authenticate GitHub HTTPS for private deps
         run: |
           git config --global url."https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
 
-      - name: Show full git config
-        run: |
-          git config --global --list
 
-      - name: Prove token can see rr_common
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: |
-          curl -i \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/renalreg/rr_common
-
-
-      # - name: Checkout   
-      #   uses: actions/checkout@v5
+      - name: Checkout   
+        uses: actions/checkout@v5
         
-      # - name: Setup Python ${{ matrix.python-version }} 
-      #   uses: actions/setup-python@v6
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
+      - name: Setup Python ${{ matrix.python-version }} 
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
 
-      # - name: Install Package Manager
-      #   if: inputs.package_manager_command != ''
-      #   run: ${{ inputs.package_manager_command }}
+      - name: Install Package Manager
+        if: inputs.package_manager_command != ''
+        run: ${{ inputs.package_manager_command }}
 
-      # - name: Install Dependencies
-      #   run: ${{ inputs.install_command }}
+      - name: Install Dependencies
+        run: ${{ inputs.install_command }}
 
-      # - name: Run Tests
-      #   run: ${{ inputs.test_command }}
+      - name: Run Tests
+        run: ${{ inputs.test_command }}
