@@ -13,8 +13,9 @@ on:
 
 jobs:
   call-workflow:
-    name: Running python tests
-    uses: renalreg/.github/.github/workflows/python_test.yml@main
+    name: Finding TODOs without a ticket identifier
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+    uses: renalreg/.github/.github/workflows/todo_check.yml@main
     secrets: inherit
 
 # Optional configuration.
