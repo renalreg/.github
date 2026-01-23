@@ -28,3 +28,7 @@ jobs:
 #   build_command: "poetry build"
 #   # Description: The command used to build packages
 #   # Default: "python -m build"
+#   
+#   repository_url: "https://test.pypi.org/legacy/"
+#   # Description: Where yo publish the package
+#   # Default: "https://pypi.org"
