@@ -12,6 +12,10 @@ on:
         type: string
         default: "python -m build"
 
+      repository_url:
+        type: string
+        default: "https://pypi.org"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -57,3 +61,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist
+          repository-url: ${{ inputs.repository_url }}
