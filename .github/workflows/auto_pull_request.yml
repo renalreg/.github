@@ -60,92 +60,17 @@ jobs:
           BRANCH_NAME="${GITHUB_REF_NAME}"
           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
-      - name: PR Title
-        id: pr_title
+      - name: PR Metadata
+        id: pr_metadata
         run: |
-          COMMIT_RANGE="remotes/origin/${BASE_BRANCH}..${PR_BRANCH}"
-          CONVENTIONAL_RE='^(feat!|feat|fix|refactor|ci|docs|chore)(\(.+\))?:'
-          COMMIT_MESSAGES=$(git log "$COMMIT_RANGE" --pretty=format:"%s" | grep -E "$CONVENTIONAL_RE")
-
-          if [ -z "$COMMIT_MESSAGES" ]; then
-            echo "No conventional commits found, unable to build pull request for you"
-            exit 0
-          fi
-
-          SUPERIOR_COMMIT=$(echo "$COMMIT_MESSAGES" | awk -v priorities="$COMMIT_PRIORITIES" '
-            BEGIN {
-              split(priorities, lines, "\n")
-              for (i in lines) {
-                split(lines[i], kv, "=")
-                priority[kv[1]] = kv[2]
-              }
-            }
-            {
-              match($0, /^(feat!|feat|fix|refactor|ci|docs|chore)(\([^)]*\))?:/, m)
-              p = priority[m[1]]
-              if (NR == 1 || p < best_p) {
-                best_p = p
-                best = $0
-                count = 1
-              } else if (p == best_p) {
-                count++
-              }
-            }
-            END {
-              if (count > 1) exit 2
-              print best
-            }
-          ')
-
-          RC=$?
-
-          if [ "$RC" -eq 2 ]; then
-            echo "::notice::Multiple commits share the highest priority."
-            echo "::notice::Unable to determine a single PR title automatically."
-            echo "::notice::Please squash or reword commits so one clear highest-priority commit exists."
-            exit 0
-          fi
-
-          echo "pr_title=${SUPERIOR_COMMIT}" >> "$GITHUB_OUTPUT"
-
-      - name: PR Features
-        id: pr_features
-        run: |
-          COMMIT_RANGE="remotes/origin/${BASE_BRANCH}..${PR_BRANCH}"
-          FEATURE_RE='^(feat!|feat|fix|refactor|ci|docs|chore)(:|\([^)]*\))'
-          FEATURE_COMMITS=$(git log "$COMMIT_RANGE" --pretty=format:"%s" | grep -E "$FEATURE_RE")
-
-          echo "${FEATURE_COMMITS}"
-          {
-            echo 'pr_features<<EOF'
-            echo "${FEATURE_COMMITS}"
-            echo EOF
-          } >> $GITHUB_OUTPUT
-
-      - name: PR Notes
-        id: pr_notes
-        run: |
-          COMMIT_RANGE="remotes/origin/${BASE_BRANCH}..${PR_BRANCH}"
-          COMMIT_BODIES=$(git log "$COMMIT_RANGE" --pretty=format:"%s%n%b" \
-            | awk '
-              /^(feat!|feat|fix|refactor|ci|docs|chore)/ { inBody=1; next }
-              inBody { print }
-              !inBody { inBody=0 }
-            ')
-
-          echo "${COMMIT_BODIES}"
-          {
-            echo 'pr_notes<<EOF'
-            echo "${COMMIT_BODIES}"
-            echo EOF
-          } >> $GITHUB_OUTPUT
+          python3 other-templates/pr_metadata.py
 
       - name: Get Current Date
         id: get_current_date
         run: |
           CURRENT_DATE=$(date +"%Y-%m-%d")
           echo "current_date=${CURRENT_DATE}" >> $GITHUB_OUTPUT
-          echo "${{ steps.pr_features.outputs.pr_features }}"
+          echo "${{ steps.pr_metadata.outputs.pr_features }}"
 
       - name: Render Template
         id: template
@@ -154,15 +79,15 @@ jobs:
           template: _shared/other-templates/pull_request_template.md
           vars: |
             pr_date: ${{ steps.get_current_date.outputs.current_date }}
-            pr_feature: "${{ steps.pr_features.outputs.pr_features }}"
-            pr_notes: "${{ steps.pr_notes.outputs.pr_notes }}"
+            pr_feature: "${{ steps.pr_metadata.outputs.pr_features }}"
+            pr_notes: "${{ steps.pr_metadata.outputs.pr_notes }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          branch: auto-pr/${{ env.PR_BRANCH }}
-          commit-message: ${{ steps.pr_title.outputs.pr_title }}
-          title: ${{ steps.pr_title.outputs.pr_title }}
+          branch: ${{ env.PR_BRANCH }}
+          commit-message: ${{ steps.pr_metadata.outputs.pr_title }}
+          title: ${{ steps.pr_metadata.outputs.pr_title }}
           body: ${{ steps.template.outputs.result }}
           base: ${{ env.BASE_BRANCH }}
