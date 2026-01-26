@@ -6,7 +6,9 @@
 
 ## ✨ Features
 
-{{ .pr_feature }}
+{{- range splitList "\n" .pr_feature }}
+- {{ . }}
+{{- end }}
 
 ---
 
