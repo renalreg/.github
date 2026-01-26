@@ -25,6 +25,10 @@ jobs:
           ref: main
           path: template
 
+      - name: Ignore shared templates directory
+        run: |
+          echo "template/" >> .git/info/exclude
+
       - name: Generate Token
         uses: tibdex/github-app-token@v1
         id: generate-token
