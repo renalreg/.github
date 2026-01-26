@@ -18,6 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout shared templates
+        uses: actions/checkout@v4
+        with:
+          repository: renalreg/.github
+          ref: main
+          path: template
+
       - name: Generate Token
         uses: tibdex/github-app-token@v1
         id: generate-token
@@ -126,7 +133,7 @@ jobs:
         id: template
         uses: chuhlomin/render-template@v1
         with:
-          template: .github/pull_request_template.md
+          template: template/.github/templates/pull_request.md
           vars: |
             pr_date: ${{ steps.get_current_date.outputs.current_date }}
             pr_feature: "${{ steps.pr_features.outputs.pr_features }}"
