@@ -26,7 +26,39 @@ on:
 
 
 jobs:
+
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      allow_test: ${{ steps.set.outputs.allow_test }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Detect internal dependencies
+        id: set
+        run: |
+          # Default to true
+          echo "allow_test=true" >> $GITHUB_OUTPUT
+
+          # Only run detection if Dependabot triggered this
+          if [ "${GITHUB_ACTOR}" != "dependabot[bot]" ]; then
+            echo "allow_test=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # If Dependabot triggered, block if URL contains "renalreg"
+          if [ -f requirements.txt ] && grep -qE 'github\.com[:/]+renalreg/' requirements.txt; then
+            echo "allow_test=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [ -f pyproject.toml ] && grep -qE 'github\.com[:/]+renalreg/' pyproject.toml; then
+            echo "allow_test=false" >> $GITHUB_OUTPUT
+          fi
+
   test:
+    needs: detect
+    if: ${{ needs.detect.outputs.allow_test == 'true' }}
     runs-on: ${{ matrix.platform }}
 
     strategy:
