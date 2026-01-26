@@ -92,7 +92,8 @@ def main() -> int:
     subjects_raw = _run_git(["log", commit_range, "--pretty=format:%s"])
     subjects = subjects_raw.splitlines()
 
-    feature_commits = "\n".join([s for s in subjects if feature_re.search(s)])
+    feature_lines = [f"- {s}" for s in subjects if feature_re.search(s)]
+    feature_commits = "\n".join(feature_lines)
     print(feature_commits)
     _write_output("pr_features", feature_commits)
 
