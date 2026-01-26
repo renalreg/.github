@@ -16,12 +16,12 @@ jobs:
     uses: renalreg/.github/.github/workflows/python_release.yml@main
     secrets: inherit
 
-# Optional configuration.
-# Uncomment and adjust as required.
-#
-# with:
-#
-#   release_type: "python"
-#   # Description: Built in release strategy
-#   # Default: "simple"
+    # # Optional configuration.
+    # # Uncomment and adjust as required.
+    #
+    # with:
+    #
+    #   release_type: "python"
+    #   # Description: Built in release strategy
+    #   # Default: "simple"
 

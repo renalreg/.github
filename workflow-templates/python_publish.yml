@@ -10,25 +10,54 @@ on:
 
   workflow_dispatch:
 
+env:
+  # Description: Where to publish the package
+  REPOSITORY_URL: ""
+
 jobs:
   call-workflow:
     name: Publish build to pypi
     uses: renalreg/.github/.github/workflows/python_publish.yml@main
     secrets: inherit
 
-# Optional configuration.
-# Uncomment and adjust as required.
-#
-# with:
-#
-#   build_tooling_command: "pip install poetry"
-#   # Description: Command to install build tooling 
-#   # Default: "pip install build"
-#
-#   build_command: "poetry build"
-#   # Description: The command used to build packages
-#   # Default: "python -m build"
-#   
-#   repository_url: "https://test.pypi.org/legacy/"
-#   # Description: Where yo publish the package
-#   # Default: "https://pypi.org"
+    # # Optional configuration.
+    # # Uncomment and adjust as required.
+    
+    # with:
+
+    #   build_tooling_command: "pip install poetry"
+    #   # Description: Command to install build tooling 
+    #   # Default: "pip install build"
+
+    #   build_command: "poetry build"
+    #   # Description: The command used to build packages
+    #   # Default: "python -m build"
+
+# Trusted publishing does not support reusable workflows
+# The job below should be moved back to the publish workflow
+# if the functionality is ever introduced.
+# The env REPOSITORY_URL will need converting to an input. 
+# This is being considered in the below issue.
+# https://github.com/pypi/warehouse/issues/11096
+  
+  publish:
+    needs: ["call-workflow"]
+    environment: publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+          repository-url: ${{ env.REPOSITORY_URL }}
