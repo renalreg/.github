@@ -161,7 +161,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          branch: ${{ env.PR_BRANCH }}
+          branch: auto-pr/${{ env.PR_BRANCH }}
           commit-message: ${{ steps.pr_title.outputs.pr_title }}
           title: ${{ steps.pr_title.outputs.pr_title }}
           body: ${{ steps.template.outputs.result }}
