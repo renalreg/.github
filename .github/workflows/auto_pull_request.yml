@@ -23,7 +23,7 @@ jobs:
         with:
           repository: renalreg/.github
           ref: main
-          path: template
+          path: _shared
 
       - name: Ignore shared templates directory
         run: |
@@ -137,7 +137,7 @@ jobs:
         id: template
         uses: chuhlomin/render-template@v1
         with:
-          template: template/other-templates/pull_request_template.md
+          template: _shared/other-templates/pull_request_template.md
           vars: |
             pr_date: ${{ steps.get_current_date.outputs.current_date }}
             pr_feature: "${{ steps.pr_features.outputs.pr_features }}"
