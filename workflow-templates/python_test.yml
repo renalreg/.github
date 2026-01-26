@@ -43,6 +43,6 @@ jobs:
     #   # Description: Command used to execute the test suite
     #   # Default: "pytest"
     #
-    #   org_deps: "true"
-    #   # Description: Command used to execute the test suite
-    #   # Default: "false"
+    #   org_deps: true
+    #   # Description: Boolean, is private repo access required by dependencies
+    #   # Default: false
