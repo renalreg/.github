@@ -133,7 +133,7 @@ jobs:
         id: template
         uses: chuhlomin/render-template@v1
         with:
-          template: template/.github/templates/pull_request.md
+          template: template/.github/other-templates/pull_request_template.md
           vars: |
             pr_date: ${{ steps.get_current_date.outputs.current_date }}
             pr_feature: "${{ steps.pr_features.outputs.pr_features }}"
