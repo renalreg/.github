@@ -24,21 +24,25 @@ jobs:
     # with:
     #
     #   python_versions: '["3.10", "3.11"]'
-    #   # Python versions to test against
+    #   # Description: Python versions to test against
     #   # Default: lowest supported Python version
     #
     #   os: '["ubuntu-latest", "windows-latest"]'
-    #   # Operating systems to run tests on
+    #   # Description: Operating systems to run tests on
     #   # Default: ["ubuntu-latest"]
     #
     #   package_manager_command: "pip install poetry"
-    #   # Command to install an additional package manager
+    #   # Description: Command to install an additional package manager
     #   # Default: ""
     #
     #   install_command: "poetry install --no-interaction"
-    #   # Command used to install dependencies
+    #   # Description: Command used to install dependencies
     #   # Default: "pip install -r requirements.txt"
     #
     #   test_command: "poetry run tox"
-    #   # Command used to execute the test suite
+    #   # Description: Command used to execute the test suite
     #   # Default: "pytest"
+    #
+    #   org_deps: "true"
+    #   # Description: Command used to execute the test suite
+    #   # Default: "false"

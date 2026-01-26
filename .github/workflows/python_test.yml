@@ -22,11 +22,15 @@ on:
       
       test_command:
         type: string
-        default: "python -m pytest"        
+        default: "python -m pytest"
 
+      org_deps:
+        type: boolean
+        default: false
 
 jobs:
   test:
+    if: ${{ !(inputs.org_deps && github.actor == 'dependabot[bot]') }}
     runs-on: ${{ matrix.platform }}
 
     strategy:
@@ -34,9 +38,10 @@ jobs:
         platform: ${{ fromJSON(inputs.os) }}
         python-version: ${{ fromJSON(inputs.python_versions) }}
 
-    steps:
+    steps:    
 
       - name: Generate a token
+        if: inputs.org_deps
         id: generate-token
         uses: actions/create-github-app-token@v2
         with:
@@ -45,6 +50,7 @@ jobs:
           owner: renalreg
 
       - name: Authenticate GitHub HTTPS for private deps
+        if: inputs.org_deps
         run: |
           git config --global url."https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
 
