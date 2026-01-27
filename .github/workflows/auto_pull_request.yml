@@ -3,110 +3,100 @@ name: Pull Request
 on:
   workflow_call:
 
-# jobs:
-#   open-pr:
-#     runs-on: ubuntu-latest
-
-#     env:
-#       BASE_BRANCH: ${{ github.event.repository.default_branch }}
-#       PR_BRANCH: ${{ github.ref_name }}
-#       COMMIT_PRIORITIES: |
-#         feat!=1
-#         feat=2
-#         fix=3
-#         refactor=4
-#         ci=5
-#         docs=6
-#         chore=7
-
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#         with:
-#           fetch-depth: 0
-
-#       - name: Checkout shared templates
-#         uses: actions/checkout@v4
-#         with:
-#           repository: renalreg/.github
-#           ref: main
-#           path: _shared
-
-#       - name: Generate Token
-#         uses: tibdex/github-app-token@v1
-#         id: generate-token
-#         with:
-#           app_id: ${{ secrets.REG_APP_ID }}
-#           private_key: ${{ secrets.REG_APP_KEY }}
-
-#       - name: Git Setup
-#         run: |
-#           git config user.name "${{ github.actor }}"
-#           git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-#       - name: Committer Email
-#         id: committer_email
-#         run: |
-#           COMMITTER_EMAIL=$(git log -n 1 --pretty=format:%ae)
-#           echo "committer_email=${COMMITTER_EMAIL}" >> $GITHUB_OUTPUT
-
-#       - name: Extract Branch Name
-#         id: extract_branch_name
-#         run: |
-#           BRANCH_NAME="${GITHUB_REF_NAME}"
-#           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-
-#       - name: PR Metadata
-#         id: pr_metadata
-#         run: |
-#           python3 _shared/other-templates/pr_metadata.py
-
-#       - name: Get Current Date
-#         id: get_current_date
-#         run: |
-#           CURRENT_DATE=$(date +"%Y-%m-%d")
-#           echo "current_date=${CURRENT_DATE}" >> $GITHUB_OUTPUT
-#           echo "${{ steps.pr_metadata.outputs.pr_features }}"
-
-#       - name: Render Template
-#         id: template
-#         uses: chuhlomin/render-template@v1
-#         with:
-#           template: _shared/other-templates/pull_request_template.md
-#           vars: |
-#             pr_date: ${{ steps.get_current_date.outputs.current_date }}
-#             pr_feature: "${{ steps.pr_metadata.outputs.pr_features }}"
-#             pr_notes: "${{ steps.pr_metadata.outputs.pr_notes }}"
-
-#       - name: Remove shared templates workspace
-#         run: rm -rf _shared
-
-#       - name: Create Pull Request
-#         uses: peter-evans/create-pull-request@v8
-#         with:
-#           token: ${{ steps.generate-token.outputs.token }}
-#           branch: ${{ env.PR_BRANCH }}
-#           commit-message: ${{ steps.pr_metadata.outputs.pr_title }}
-#           title: ${{ steps.pr_metadata.outputs.pr_title }}
-#           body: ${{ steps.template.outputs.result }}
-#           base: ${{ env.BASE_BRANCH }}
-
 jobs:
-  demo:
+  open-pr:
     runs-on: ubuntu-latest
+
+    env:
+      BASE_BRANCH: ${{ github.event.repository.default_branch }}
+      PR_BRANCH: ${{ github.ref_name }}
+      COMMIT_PRIORITIES: |
+        feat!=1
+        feat=2
+        fix=3
+        refactor=4
+        ci=5
+        docs=6
+        chore=7
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Make a trivial change
-        run: |
-          date > .github/auto-pr-demo.txt
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v8
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: auto/demo-pr
-          commit-message: "chore: auto PR demo"
-          title: "chore: auto PR demo"
-          body: "This PR was created by create-pull-request with hard-coded values."
+          fetch-depth: 0
+
+      - name: Checkout shared templates
+        uses: actions/checkout@v4
+        with:
+          repository: renalreg/.github
+          ref: main
+          path: _shared
+
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REG_APP_ID }}
+          private_key: ${{ secrets.REG_APP_KEY }}
+
+      - name: Git Setup
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Committer Email
+        id: committer_email
+        run: |
+          COMMITTER_EMAIL=$(git log -n 1 --pretty=format:%ae)
+          echo "committer_email=${COMMITTER_EMAIL}" >> $GITHUB_OUTPUT
+
+      - name: Extract Branch Name
+        id: extract_branch_name
+        run: |
+          BRANCH_NAME="${GITHUB_REF_NAME}"
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+
+      - name: PR Metadata
+        id: pr_metadata
+        run: |
+          python3 _shared/other-templates/pr_metadata.py
+
+      - name: Get Current Date
+        id: get_current_date
+        run: |
+          CURRENT_DATE=$(date +"%Y-%m-%d")
+          echo "current_date=${CURRENT_DATE}" >> $GITHUB_OUTPUT
+          echo "${{ steps.pr_metadata.outputs.pr_features }}"
+
+      - name: Render Template
+        id: template
+        uses: chuhlomin/render-template@v1
+        with:
+          template: _shared/other-templates/pull_request_template.md
+          vars: |
+            pr_date: ${{ steps.get_current_date.outputs.current_date }}
+            pr_feature: "${{ steps.pr_metadata.outputs.pr_features }}"
+            pr_notes: "${{ steps.pr_metadata.outputs.pr_notes }}"
+
+      - name: Remove shared templates workspace
+        run: rm -rf _shared
+
+      - name: Create or update PR (gh)
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          BASE: ${{ env.BASE_BRANCH }}
+          HEAD: ${{ env.PR_BRANCH }}
+          TITLE: ${{ steps.pr_metadata.outputs.pr_title }}
+          BODY: ${{ steps.template.outputs.result }}
+        run: |
+          set -euo pipefail
+
+          BODY_FILE="$(mktemp)"
+          printf '%s\n' "$BODY" > "$BODY_FILE"
+
+          if gh pr view "$HEAD" --repo "$REPO" >/dev/null 2>&1; then
+            gh pr edit "$HEAD" --repo "$REPO" --title "$TITLE" --body-file "$BODY_FILE"
+          else
+            gh pr create --repo "$REPO" --base "$BASE" --head "$HEAD" --title "$TITLE" --body-file "$BODY_FILE"
+          fi
