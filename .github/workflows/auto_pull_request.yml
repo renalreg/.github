@@ -93,4 +93,4 @@ jobs:
           base: ${{ env.BASE_BRANCH }}
           add-paths: |
             .
-            :!_shared
+            !_shared
