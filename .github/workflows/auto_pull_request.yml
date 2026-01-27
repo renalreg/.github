@@ -91,7 +91,7 @@
 #           body: ${{ steps.template.outputs.result }}
 #           base: ${{ env.BASE_BRANCH }}
 
-name: Simple create-pull-request demo
+name: Pull Request
 
 on:
   workflow_dispatch:
