@@ -91,3 +91,5 @@ jobs:
           title: ${{ steps.pr_metadata.outputs.pr_title }}
           body: ${{ steps.template.outputs.result }}
           base: ${{ env.BASE_BRANCH }}
+          add-paths: |
+            :!_shared
