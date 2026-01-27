@@ -68,17 +68,26 @@ jobs:
           echo "current_date=${CURRENT_DATE}" >> $GITHUB_OUTPUT
           echo "${{ steps.pr_metadata.outputs.pr_features }}"
 
+      - name: Build template vars
+        env:
+          PR_DATE: ${{ steps.get_current_date.outputs.current_date }}
+          PR_FEATURE: ${{ steps.pr_metadata.outputs.pr_features }}
+          PR_NOTES: ${{ steps.pr_metadata.outputs.pr_notes }}
+        run: |
+          printf 'pr_date: %s\n' "$PR_DATE" > pr_vars.yml
+
+          printf 'pr_feature: |-\n' >> pr_vars.yml
+          printf '%s\n' "$PR_FEATURE" | sed 's/^/  /' >> pr_vars.yml || true
+
+          printf 'pr_notes: |-\n' >> pr_vars.yml
+          printf '%s\n' "$PR_NOTES" | sed 's/^/  /' >> pr_vars.yml || true
+
       - name: Render Template
         id: template
         uses: chuhlomin/render-template@v1
         with:
           template: _shared/other-templates/pull_request_template.md
-          vars: |
-            pr_date: ${{ steps.get_current_date.outputs.current_date }}
-            pr_feature: |-
-              ${{ steps.pr_metadata.outputs.pr_features }}
-            pr_notes: |-
-              ${{ steps.pr_metadata.outputs.pr_notes }}
+          vars_path: pr_vars.yml
 
       - name: Remove shared templates workspace
         run: rm -rf _shared
