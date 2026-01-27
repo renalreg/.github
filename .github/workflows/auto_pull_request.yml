@@ -75,8 +75,10 @@ jobs:
           template: _shared/other-templates/pull_request_template.md
           vars: |
             pr_date: ${{ steps.get_current_date.outputs.current_date }}
-            pr_feature: "${{ steps.pr_metadata.outputs.pr_features }}"
-            pr_notes: "${{ steps.pr_metadata.outputs.pr_notes }}"
+            pr_feature: |-
+              ${{ steps.pr_metadata.outputs.pr_features }}
+            pr_notes: |-
+              ${{ steps.pr_metadata.outputs.pr_notes }}
 
       - name: Remove shared templates workspace
         run: rm -rf _shared
