@@ -95,8 +95,10 @@ jobs:
           BODY_FILE="$(mktemp)"
           printf '%s\n' "$BODY" > "$BODY_FILE"
 
-          if gh pr view "$HEAD" --repo "$REPO" >/dev/null 2>&1; then
-            gh pr edit "$HEAD" --repo "$REPO" --title "$TITLE" --body-file "$BODY_FILE"
+          PR_NUMBER="$(gh pr list --repo "$REPO" --head "$HEAD" --state open --json number --jq '.[0].number' || true)"
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --title "$TITLE" --body-file "$BODY_FILE"
           else
             gh pr create --repo "$REPO" --base "$BASE" --head "$HEAD" --title "$TITLE" --body-file "$BODY_FILE"
           fi
