@@ -12,7 +12,6 @@ on:
 
 jobs:
   call-workflow:
-    if: ${{ !endsWith(github.actor, '[bot]') }}
     name: Opening PR based on conventional commit
     uses: renalreg/.github/.github/workflows/auto_pull_request.yml@main
     secrets: inherit
