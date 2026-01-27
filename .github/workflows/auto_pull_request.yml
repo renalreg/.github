@@ -1,7 +1,7 @@
-# name: Pull Request
+name: Pull Request
 
-# on:
-#   workflow_call:
+on:
+  workflow_call:
 
 # jobs:
 #   open-pr:
@@ -90,11 +90,6 @@
 #           title: ${{ steps.pr_metadata.outputs.pr_title }}
 #           body: ${{ steps.template.outputs.result }}
 #           base: ${{ env.BASE_BRANCH }}
-
-name: Pull Request
-
-on:
-  workflow_dispatch:
 
 jobs:
   demo:
