@@ -1,7 +1,7 @@
 # 📘 Full documentation:
 # https://github.com/renalreg/.github/blob/main/README.md#python-test-workflow
 
-name: Python Release
+name: Auto Release
 
 on:
   push:
@@ -24,4 +24,3 @@ jobs:
     #   release_type: "python"
     #   # Description: Built in release strategy
     #   # Default: "simple"
-
