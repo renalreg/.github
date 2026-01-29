@@ -13,7 +13,7 @@ on:
 jobs:
   call-workflow:
     name: Building release branch and updating CHANGELOG.md
-    uses: renalreg/.github/.github/workflows/python_release.yml@main
+    uses: renalreg/.github/.github/workflows/auto_release.yml@main
     secrets: inherit
 
     # # Optional configuration.
