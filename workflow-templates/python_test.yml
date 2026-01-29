@@ -15,7 +15,7 @@ jobs:
   call-workflow:
     name: Finding TODOs without a ticket identifier
     if: ${{ !startsWith(github.head_ref, 'release-please--') }}
-    uses: renalreg/.github/.github/workflows/todo_check.yml@main
+    uses: renalreg/.github/.github/workflows/pytest.yml@main
     secrets: inherit
 
     # # Optional configuration.
