@@ -59,7 +59,7 @@ jobs:
       - name: PR Metadata
         id: pr_metadata
         run: |
-          python3 _shared/other-templates/pr_metadata.py
+          python3 _shared/.github/scripts/pr_metadata.py
 
       - name: Get Current Date
         id: get_current_date
