@@ -24,7 +24,7 @@ jobs:
               "https://api.github.com/orgs/$ORG_NAME/repos?per_page=100&page=$PAGE")
             
             # Filter out archived repos and extract names
-            NAMES=$(echo "$RESPONSE" | jq -r '.[] | select(.archived==false) | .name')
+            NAMES=$(echo "$RESPONSE" | jq -r '.[] | select(.archived==false and .name != ".github") | .name')
             
             # If empty, stop
             if [ -z "$NAMES" ]; then
