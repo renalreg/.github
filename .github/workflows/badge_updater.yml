@@ -42,14 +42,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for repo in ${{ steps.repos.outputs.repos }}; do
+          echo "${{ steps.repos.outputs.repos }}" | while IFS= read -r repo; do
             echo "Checking if $repo has readme_sync.yml..."
-            
-            EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3.raw" \
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/renalreg/$repo/contents/.github/workflows/readme_sync.yml)
-            
-            if [[ $EXISTS != *"Not Found"* ]]; then
+
+            if [ "$STATUS" = "200" ]; then
               echo "readme_sync.yml exists in $repo → triggering sync-readme..."
               curl -X POST \
                 -H "Accept: application/vnd.github.v3+json" \
@@ -60,3 +60,4 @@ jobs:
               echo "No readme_sync.yml in $repo → skipping"
             fi
           done
+      
