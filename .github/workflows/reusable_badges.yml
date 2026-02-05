@@ -1,0 +1,47 @@
+name: Reusable README Badge Updater
+
+on:
+  workflow_call:
+    inputs:
+      github_token:
+        required: true
+        type: string
+      pypi_package_name:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main  # or master if your default branch is master
+
+      # 2️⃣ Set up Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pyyaml
+      # 3️⃣ Run badge update script
+      - name: Update README badges
+        id: update_readme
+        run: |
+          export GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-${{ github.repository }}}"
+          export PYPI_PACKAGE_NAME="${{ inputs.pypi_package_name }}"
+          python3 _shared/.github/scripts/update_badges.py
+      
+
+      # 4️⃣ Commit and push changes directly to main/master
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "Update README badges"
+          branch: main  # commit directly to default branch
+          push: true
+          file_pattern: README.md

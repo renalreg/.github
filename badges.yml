@@ -1,0 +1,7 @@
+badges:
+  - '[![Coverage](https://img.shields.io/codecov/c/github/renalreg/radar)](https://codecov.io/gh/renalreg/radar)'
+  - '[![License](https://img.shields.io/github/license/renalreg/radar)](https://github.com/renalreg/radar/blob/main/LICENSE)'
+enable:
+  - 'forks'
+disable:
+  - 'codecov'
