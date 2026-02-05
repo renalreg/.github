@@ -29,7 +29,7 @@ def detect_workflows():
 
 def load_optional_badges():
     if not BADGES_CONFIG_FILE.exists():
-        return []
+        return [], None
 
     with BADGES_CONFIG_FILE.open("r") as f:
         try:
@@ -67,25 +67,27 @@ def build_badge_block(repo_full_name):
         "stars": f"[![Stars](https://img.shields.io/github/stars/{repo_full_name})](https://github.com/{repo_full_name}/stargazers)",
         "codecov": f"[![Coverage](https://codecov.io/gh/{repo_full_name}/branch/main/graph/badge.svg)](https://codecov.io/gh/{repo_full_name})",
     }
+    if data:
+        selected_standard_badges = [
+            value
+            for key, value in standard_badges.items()
+            if key not in data.get("disable", [])
+        ]
 
-    selected_standard_badges = [
-        value
-        for key, value in standard_badges.items()
-        if key not in data.get("disable", [])
-    ]
+        selectable_badges = {
+            "forks": f"[![Forks](https://img.shields.io/github/forks/{repo_full_name})](https://github.com/{repo_full_name}/network/members)",
+        }
 
-    selectable_badges = {
-        "forks": f"[![Forks](https://img.shields.io/github/forks/{repo_full_name})](https://github.com/{repo_full_name}/network/members)",
-    }
+        enabled_badges = [
+            value
+            for key, value in selectable_badges.items()
+            if key in data.get("enable", [])
+        ]
 
-    enabled_badges = [
-        value
-        for key, value in selectable_badges.items()
-        if key in data.get("enable", [])
-    ]
-
-    badges.extend(selected_standard_badges)
-    badges.extend(enabled_badges)
+        badges.extend(selected_standard_badges)
+        badges.extend(enabled_badges)
+    else:
+        badges.extend([value for key, value in standard_badges.items()])
     badges.extend(hardcoded_badges)
 
     # pypi badges
@@ -124,5 +126,8 @@ def update_readme(repo_full_name):
 # -----------------------
 if __name__ == "__main__":
     # Infer repository name from environment if running in GitHub Actions
-    GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "renalreg/ukrdc-sqla")
-    update_readme(GITHUB_REPOSITORY)
+    GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
+    if GITHUB_REPOSITORY:
+        update_readme(GITHUB_REPOSITORY)
+    else:
+        raise Exception("GITHUB_REPOSITORY environment variable not set")
