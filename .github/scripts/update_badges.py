@@ -11,11 +11,8 @@ import yaml
 README_FILE = Path("README.md")
 BADGES_CONFIG_FILE = Path("badges.yml")
 WORKFLOWS_DIR = Path(".github/workflows")
-
 BADGES_TAG_RE = re.compile(r"<div class=\"badges\">.*?</div>", re.DOTALL)
-
 PYPI_PACKAGE_NAME = os.environ.get("PYPI_PACKAGE_NAME")
-
 
 def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
     base = {
