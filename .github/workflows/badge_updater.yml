@@ -15,7 +15,7 @@ jobs:
         id: repos
         env:
           ORG_NAME: renalreg
-          GITHUB_TOKEN: ${{ secrets.ORG_PAT }}
+          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
         run: |
           echo "Fetching all non-archived repos from $ORG_NAME..."
 
@@ -49,7 +49,7 @@ jobs:
 
       - name: Trigger repository_dispatch only if readme_sync.yml exists
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_PAT }}
+          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
         run: |
           while IFS= read -r repo; do
             [ -z "$repo" ] && continue
