@@ -17,11 +17,6 @@ BADGES_TAG_RE = re.compile(r"<div class=\"badges\">.*?</div>", re.DOTALL)
 PYPI_PACKAGE_NAME = os.environ.get("PYPI_PACKAGE_NAME")
 
 
-# ---------------------------------------------------------
-# Badge Registry
-# ---------------------------------------------------------
-
-
 def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
     base = {
         "issues": f"[![Issues](https://img.shields.io/github/issues/{repo})](https://github.com/{repo}/issues)",
@@ -42,10 +37,6 @@ def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
     return {k: v for k, v in base.items() if k in defaults}
 
 
-# ---------------------------------------------------------
-# Workflow badges
-# ---------------------------------------------------------
-
 
 def detect_workflows(repo: str) -> Dict[str, str]:
     badges = {}
@@ -61,22 +52,12 @@ def detect_workflows(repo: str) -> Dict[str, str]:
     return badges
 
 
-# ---------------------------------------------------------
-# Config loader
-# ---------------------------------------------------------
-
-
 def load_config() -> Dict:
     if not BADGES_CONFIG_FILE.exists():
         return {}
 
     with BADGES_CONFIG_FILE.open() as f:
         return yaml.safe_load(f) or {}
-
-
-# ---------------------------------------------------------
-# Badge builder
-# ---------------------------------------------------------
 
 
 def build_badges(repo: str, visibility: str) -> List[str]:
@@ -117,11 +98,6 @@ def build_badges(repo: str, visibility: str) -> List[str]:
     return badges
 
 
-# ---------------------------------------------------------
-# README updater
-# ---------------------------------------------------------
-
-
 def update_readme(repo: str, visibility: str):
     badge_lines = "\n".join(build_badges(repo, visibility))
     new_block = f'<div class="badges">\n\n{badge_lines}\n\n</div>'
@@ -137,11 +113,6 @@ def update_readme(repo: str, visibility: str):
         updated = new_block + "\n\n" + content
 
     README_FILE.write_text(updated)
-
-
-# ---------------------------------------------------------
-# Main
-# ---------------------------------------------------------
 
 
 @click.command()
