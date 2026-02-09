@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml click
       # 3️⃣ Run badge update script
       - name: Update README badges
         id: update_readme
