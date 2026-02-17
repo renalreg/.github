@@ -1,0 +1,4 @@
+{
+  "name": "UKKA Auto Dependency Pull Requests",
+  "description": "!!Experimental!! Automatically creates a pull request in another repo when PR is created in a current one."
+}

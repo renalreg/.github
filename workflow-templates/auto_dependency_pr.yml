@@ -1,0 +1,34 @@
+
+name: Sync PR to Main Repo
+
+on:
+  pull_request:
+    # Fire when PR is opened and updated
+    types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Sync PR to Main Repo
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+    uses: renalreg/.github/.github/workflows/auto_dependency_pr.yml@main
+    secrets: inherit
+
+    # # Optional configuration.
+    # # Uncomment and adjust as required.
+    #
+    # with:
+    #
+    #   python_versions: '["3.10", "3.11"]'
+    #   # Description: Python versions to test against
+    #   # Default: lowest supported Python version
+    #
+    #
+    #   base_branch: "main"
+    #   # Description: Name of the base branch in target repo (generally main or master)
+    #   # Default: "main"
+
+    #   target_repo: "rr_validation"
+    #   # Description: Name of the target repo to create PR in (e.g. rr_validation)
+    #   # Default: "rr_validation"

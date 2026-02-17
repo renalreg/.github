@@ -1,0 +1,79 @@
+name: Sync PR to Main Repo
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        type: string
+        default: "main"
+      python_versions:
+        type: string
+        default: '["3.12"]'
+      target_repo:
+        type: string
+        default: "rr_validation"
+
+jobs:
+  update-main:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ${{ fromJSON(inputs.python_versions) }}
+    
+    steps:
+      - name: Checkout package repo
+        uses: actions/checkout@v4
+
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REG_APP_ID }}
+          private_key: ${{ secrets.REG_APP_KEY }}
+
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          repository: renalreg/${{ inputs.target_repo }}
+          token: ${{ steps.generate-token.outputs.token }}
+          path: ${{ inputs.target_repo }}
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+
+      - name: Authenticate GitHub HTTPS for private deps
+        run: |
+          git config --global url."https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Update dependency (pin to PR SHA) and lock
+        run: |
+          cd ${{ inputs.target_repo }}
+          PR_SHA="${{ github.event.pull_request.head.sha }}"
+          SRC_REPO="${{ github.repository }}"
+
+          poetry add --lock "git+https://github.com/${SRC_REPO}.git@${PR_SHA}"
+
+      - name: Create or update PR in the main branch
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          path: ${{ inputs.target_repo }}
+          base: ${{ inputs.base_branch }}
+          branch: bump-${{ github.event.repository.name }}-pr-${{ github.event.pull_request.number }}
+          commit-message: "Bump ${{ github.event.repository.name }} to PR #${{ github.event.pull_request.number }}"
+          title: "Test ${{ github.event.repository.name }} PR #${{ github.event.pull_request.number }}"
+          body: |
+            Auto-generated PR to test changes from:
+            ${{ github.event.pull_request.html_url }}
+          committer: bob-dependency-bot <dependency-bob@users.noreply.github.com>
+          author: bob-dependency-bot <dependency-bob@users.noreply.github.com>
+          reviewers: GlebRysev-UKKA
