@@ -24,11 +24,14 @@ jobs:
     #   # Description: Python versions to test against
     #   # Default: lowest supported Python version
     #
-    #
     #   base_branch: "main"
     #   # Description: Name of the base branch in target repo (generally main or master)
     #   # Default: "main"
-
+    #
     #   target_repo: "rr_validation"
     #   # Description: Name of the target repo to create PR in (e.g. rr_validation)
     #   # Default: "rr_validation"
+    #
+    #   reviewers: "GlebRysev-UKKA"
+    #   # Description: GitHub username of a PR reviewer
+    #   # Default: "" (no reviewers)
