@@ -78,10 +78,24 @@ jobs:
           base: ${{ inputs.base_branch }}
           branch: bump-${{ github.event.repository.name }}-pr-${{ github.event.pull_request.number }}
           commit-message: "Bump ${{ github.event.repository.name }} to PR #${{ github.event.pull_request.number }}"
-          title: "Test ${{ github.event.repository.name }} PR #${{ github.event.pull_request.number }}"
+          title: "Bump and test ${{ github.event.repository.name }} PR #${{ github.event.pull_request.number }}"
           body: |
             Auto-generated PR to test changes from:
-            ${{ github.event.pull_request.html_url }}
+            - Source PR: ${{ github.event.pull_request.html_url }}
+            - Source SHA: `${{ github.event.pull_request.head.sha }}`
+            - Package repo: `${{ github.repository }}`
+
+            ## What this PR does
+            This PR pins `${{ github.event.repository.name }}` to the PR SHA above and updates `poetry.lock`.
+
+            ## What to do next 
+            1. Review the dependencies
+            2. Check the CI passes
+            3. Pull locally and build/run 
+
+            ## How to merge 
+            - Merge only after the source PR is approved and ready. 
+            - Alternatively, close this PR once the source PR is merged.
           committer: bob-dependency-bot <dependency-bob@users.noreply.github.com>
           author: bob-dependency-bot <dependency-bob@users.noreply.github.com>
           reviewers: ${{ inputs.reviewers || '' }}
