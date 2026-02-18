@@ -77,7 +77,7 @@ jobs:
           path: ${{ inputs.target_repo }}
           base: ${{ inputs.base_branch }}
           branch: bump-${{ github.event.repository.name }}-pr-${{ github.event.pull_request.number }}
-          commit-message: "Bump ${{ github.event.repository.name }} to PR #${{ github.event.pull_request.number }}"
+          commit-message: "[skip ci] Bump ${{ github.event.repository.name }} to PR #${{ github.event.pull_request.number }}"
           title: "Bump and test ${{ github.event.repository.name }} PR #${{ github.event.pull_request.number }}"
           body: |
             Auto-generated PR to test changes from:
@@ -90,7 +90,7 @@ jobs:
 
             ## What to do next 
             1. Review the dependencies
-            2. Check the CI passes
+            2. Run CI and check that it passes
             3. Pull locally and build/run 
 
             ## How to merge 
