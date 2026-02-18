@@ -12,6 +12,9 @@ on:
       target_repo:
         type: string
         default: "rr_validation"
+      reviewers:
+        type: string
+        default: ""
 
 jobs:
   update-main:
@@ -81,4 +84,4 @@ jobs:
             ${{ github.event.pull_request.html_url }}
           committer: bob-dependency-bot <dependency-bob@users.noreply.github.com>
           author: bob-dependency-bot <dependency-bob@users.noreply.github.com>
-          reviewers: GlebRysev-UKKA
+          reviewers: ${{ inputs.reviewers || '' }}
