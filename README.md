@@ -43,6 +43,7 @@ You can also copy and paste the templates into any repo you wish without the nee
 - <a href="#file_check">**UKKA Python File Checker**</a>
 - <a href="#pr_title">**UKKA Conventional PR Title**</a>
 - <a href="#auto_pr">**UKKA Auto Pull Requests**</a>
+- <a href="#auto_dependency_pr">**UKKA Auto Dependency Pull Requests**</a>
 
 <a id="python_test"></a>
 
@@ -177,6 +178,34 @@ Automates the creation and management of pull requests, including branch name ex
 **Consumed Actions**: 
 - [**actions/checkout**](https://github.com/actions/checkout)
 - [**tibdex/github-app-token**](https://github.com/tibdex/github-app-token)
+
+<a id="auto_dependency_pr"></a>
+
+## Auto Dependency PR 
+
+This action automates the creation of PR in repository B, whenever a PR is created in repository A, designed for cases when A is a dependency of B. Runs whenever a PR is opened or changed (e.g., has new commits added to it). 
+
+**Example Options**
+
+```yaml
+with:
+
+  python_versions: '["3.10", "3.11"]'
+  # Description: Python versions to test against
+  # Default: lowest supported Python version
+
+  base_branch: "main"
+  # Description: Name of the base branch in target repo (generally main or master)
+  # Default: "main"
+
+  target_repo: "rr_validation"
+  # Description: Name of the target repo to create PR in (e.g. rr_validation)
+  # Default: "rr_validation"
+
+  reviewers: "GlebRysev-UKKA"
+  # Description: GitHub username of a PR reviewer
+  # Default: "" (no reviewers)
+```
 
 ## Python Test Gen
 
