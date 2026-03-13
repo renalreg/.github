@@ -19,11 +19,11 @@ jobs:
     
     steps:
       - name: Generate Token
-        uses: tibdex/github-app-token@v1
         id: generate-token
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.REN_APP_ID }}
-          private_key: ${{ secrets.REN_APP_KEY }}
+          app-id: ${{ secrets.REN_APP_ID }}
+          private-key: ${{ secrets.REN_APP_KEY }}
 
       - name: Checkout
         uses: actions/checkout@v5
