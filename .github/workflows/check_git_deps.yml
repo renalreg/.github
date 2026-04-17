@@ -8,6 +8,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate Token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.REN_APP_ID }}
+          private-key: ${{ secrets.REN_APP_KEY }}
+
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -17,13 +24,6 @@ jobs:
           repository: renalreg/.github
           ref: main
           path: _shared
-
-      - name: Generate Token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.REN_APP_ID }}
-          private-key: ${{ secrets.REN_APP_KEY }}
 
       - name: Install Python
         uses: actions/setup-python@v5
