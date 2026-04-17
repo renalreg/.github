@@ -1,9 +1,7 @@
 name: Check Git Dependency Tags
 
 on:
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   check-tags:
