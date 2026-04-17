@@ -1,0 +1,33 @@
+name: Check Git Dependency Tags
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  check-tags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Checkout shared templates
+        uses: actions/checkout@v4
+        with:
+          repository: renalreg/.github
+          ref: main
+          path: _shared
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install toml packaging
+
+      - name: Check git dependency tags
+        run: |
+          python _shared/.github/scripts/check_git_tags.py

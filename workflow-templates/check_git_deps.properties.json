@@ -1,0 +1,4 @@
+{
+  "name": "check git deps",
+  "description": "checks the toml file of the repo for any git deps with a specified tag and checks if it is out of date"
+}

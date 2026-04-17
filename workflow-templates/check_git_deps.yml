@@ -1,0 +1,14 @@
+name: Check Git Dependency Tags
+
+on:
+  pull_request:
+    branches:
+      - $default-branch
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Ensure git dependency tags are up to date
+    uses: renalreg/.github/.github/workflows/check_git_deps.yml@main
+    secrets: inherit
