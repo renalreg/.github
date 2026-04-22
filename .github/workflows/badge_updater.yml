@@ -1,0 +1,76 @@
+name: Badge Updater Orchestration
+
+on:
+  push:
+    paths:
+      - '.github/scripts/update_badges.py'
+  workflow_dispatch:
+
+jobs:
+  trigger-all-repos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: List all active repos in org
+        id: repos
+        env:
+          ORG_NAME: renalreg
+          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
+        run: |
+          echo "Fetching all non-archived repos from $ORG_NAME..."
+
+          PAGE=1
+          REPO_LIST=""
+
+          while :; do
+            RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/orgs/$ORG_NAME/repos?per_page=100&page=$PAGE")
+
+            NAMES=$(echo "$RESPONSE" | jq -r '.[] | select(.archived==false and .name != ".github") | .name')
+
+            if [ -z "$NAMES" ]; then
+              break
+            fi
+
+            # Append as newline list
+            REPO_LIST="$REPO_LIST"$'\n'"$NAMES"
+            PAGE=$((PAGE+1))
+          done
+
+          echo "Found repos:"
+          echo "$REPO_LIST"
+
+          # Proper multiline output
+          {
+            echo "repos<<EOF"
+            echo "$REPO_LIST"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Trigger repository_dispatch only if readme_sync.yml exists
+        env:
+          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
+        run: |
+          while IFS= read -r repo; do
+            [ -z "$repo" ] && continue
+
+            echo "Checking $repo..."
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              https://api.github.com/repos/renalreg/$repo/contents/.github/workflows/readme_sync.yml)
+
+            if [ "$STATUS" = "200" ]; then
+              echo "✓ readme_sync.yml exists → dispatching"
+
+              curl -s -X POST \
+                -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                https://api.github.com/repos/renalreg/$repo/dispatches \
+                -d '{"event_type":"sync-readme"}'
+
+            else
+              echo "✗ No workflow → skipping"
+            fi
+
+          done <<< "${{ steps.repos.outputs.repos }}"

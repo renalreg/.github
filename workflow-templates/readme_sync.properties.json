@@ -1,0 +1,4 @@
+{
+  "name": "readme_sync",
+  "description": "This will sync the readme with org wide badges and info use <div class=badges></div> to denote the location in a readme to update"
+}
