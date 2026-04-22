@@ -8,10 +8,6 @@ on:
         type: string
         default: "simple"
 
-      target-branch:
-        type: string
-        default: "main"
-
 permissions:
   contents: write
   issues: write
@@ -37,4 +33,3 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
           release-type: ${{ inputs.release_type }}
-          target-branch: ${{ inputs.target-branch }}
