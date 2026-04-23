@@ -43,9 +43,9 @@ jobs:
       - name: Generate a token
         if: inputs.org_deps
         id: generate-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.AL_APP_ID }}
+          client-id: ${{ secrets.AL_APP_ID }}
           private-key: ${{ secrets.AL_APP_KEY }}
           owner: renalreg
 
