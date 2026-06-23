@@ -11,11 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.AL_APP_ID }}
+          private-key: ${{ secrets.AL_APP_KEY }}
+          owner: renalreg
+
       - name: List all active repos in org
         id: repos
         env:
           ORG_NAME: renalreg
-          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           echo "Fetching all non-archived repos from $ORG_NAME..."
 
@@ -32,7 +40,6 @@ jobs:
               break
             fi
 
-            # Append as newline list
             REPO_LIST="$REPO_LIST"$'\n'"$NAMES"
             PAGE=$((PAGE+1))
           done
@@ -40,7 +47,6 @@ jobs:
           echo "Found repos:"
           echo "$REPO_LIST"
 
-          # Proper multiline output
           {
             echo "repos<<EOF"
             echo "$REPO_LIST"
@@ -49,7 +55,7 @@ jobs:
 
       - name: Trigger repository_dispatch only if readme_sync.yml exists
         env:
-          GITHUB_TOKEN: ${{  secrets.GITHUB_TOKEN  }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           while IFS= read -r repo; do
             [ -z "$repo" ] && continue

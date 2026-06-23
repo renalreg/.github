@@ -3,45 +3,58 @@ name: Reusable README Badge Updater
 on:
   workflow_call:
     inputs:
-      github_token:
-        required: true
-        type: string
       pypi_package_name:
         required: false
         type: string
         default: ""
+      visibility:
+        required: false
+        type: string
+        default: "private"
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout the repo
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.AL_APP_ID }}
+          private-key: ${{ secrets.AL_APP_KEY }}
+          owner: renalreg
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: main  # or master if your default branch is master
+          ref: ${{ github.ref_name }}
+          token: ${{ steps.generate-token.outputs.token }}
 
-      # 2️⃣ Set up Python
+      - name: Checkout shared .github repo
+        uses: actions/checkout@v4
+        with:
+          repository: renalreg/.github
+          path: _shared
+          token: ${{ steps.generate-token.outputs.token }}
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: pip install pyyaml click
-      # 3️⃣ Run badge update script
+
       - name: Update README badges
-        id: update_readme
         run: |
           export GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-${{ github.repository }}}"
           export PYPI_PACKAGE_NAME="${{ inputs.pypi_package_name }}"
-          python3 _shared/.github/scripts/update_badges.py
-      
+          python3 _shared/.github/scripts/update_badges.py --visibility ${{ inputs.visibility }}
 
-      # 4️⃣ Commit and push changes directly to main/master
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Update README badges"
-          branch: main  # commit directly to default branch
+          branch: ${{ github.ref_name }}
           push: true
           file_pattern: README.md
