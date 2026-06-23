@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import re
-import argparse
 from pathlib import Path
 from typing import Dict, List
 
@@ -14,6 +13,7 @@ WORKFLOWS_DIR = Path(".github/workflows")
 BADGES_TAG_RE = re.compile(r"<div class=\"badges\">.*?</div>", re.DOTALL)
 PYPI_PACKAGE_NAME = os.environ.get("PYPI_PACKAGE_NAME")
 
+
 def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
     base = {
         "issues": f"[![Issues](https://img.shields.io/github/issues/{repo})](https://github.com/{repo}/issues)",
@@ -25,14 +25,12 @@ def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
         "codecov": f"[![Coverage](https://codecov.io/gh/{repo}/branch/main/graph/badge.svg)](https://codecov.io/gh/{repo})",
     }
 
-    # Default sets differ by visibility
     if visibility == "private":
         defaults = ["issues", "license"]
     else:  # public
         defaults = ["issues", "license", "stars", "dependencies", "vulnerabilities"]
 
     return {k: v for k, v in base.items() if k in defaults}
-
 
 
 def detect_workflows(repo: str) -> Dict[str, str]:
@@ -62,8 +60,9 @@ def build_badges(repo: str, visibility: str) -> List[str]:
 
     registry = badge_registry(repo, visibility)
     workflow_badges = detect_workflows(repo)
+    full_registry = badge_registry(repo, "public")
 
-    # Merge registries
+    # Merge workflow badges in
     registry.update(workflow_badges)
 
     # Apply disables
@@ -74,12 +73,12 @@ def build_badges(repo: str, visibility: str) -> List[str]:
     for key in config.get("enable", []):
         if key in workflow_badges:
             registry[key] = workflow_badges[key]
-        elif key in badge_registry(repo, "public"):
-            registry[key] = badge_registry(repo, "public")[key]
+        elif key in full_registry:
+            registry[key] = full_registry[key]
 
     badges = list(registry.values())
 
-    # Hardcoded custom badges
+    # Hardcoded custom badges from badges.yml
     for custom in config.get("badges", []):
         badges.append(custom)
 
@@ -110,6 +109,7 @@ def update_readme(repo: str, visibility: str):
         updated = new_block + "\n\n" + content
 
     README_FILE.write_text(updated)
+    print(f"README updated with {len(badge_lines.splitlines())} badge(s) for '{repo}' ({visibility})")
 
 
 @click.command()
@@ -123,7 +123,7 @@ def update_readme(repo: str, visibility: str):
 def main(visibility: str):
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo:
-        raise RuntimeError("GITHUB_REPOSITORY not set")
+        raise RuntimeError("GITHUB_REPOSITORY environment variable is not set")
 
     update_readme(repo, visibility)
 

@@ -10,23 +10,23 @@ jobs:
     uses: renalreg/.github/.github/workflows/reusable_badges.yml@main
     secrets: inherit
     #with:
-    # pypi_package_name: "pypi package name"
+    #  visibility: "public"   # defaults to "private" if not set
+    #  pypi_package_name: "your-pypi-package-name"
 
-# you can further customise the badges by adding badges.yml with the following at the same location as the readme.md
-#badges:
-#  - '[![Coverage](https://img.shields.io/codecov/c/github/REPOPATH)](https://codecov.io/gh/REPOPATH)'
-#  - 'any other exact badge'
-#enable:
-#  - ''
-#disable:
-  #- 'codecov'
-  #- 'issues'
-  #- 'dependencies'
-  #- 'vulnerabilities'
-  #- 'license'
-  #- 'stars'
-  #- 'forks'
-  #- 'coverage'
-
-
-
+# Customise badges by adding a badges.yml at the same level as README.md
+#
+# badges:
+#   - '[![Coverage](https://img.shields.io/codecov/c/github/REPOPATH)](https://codecov.io/gh/REPOPATH)'
+#   - 'any other exact badge markdown'
+# enable:
+#   - 'stars'
+#   - 'codecov'
+#   - 'forks'
+# disable:
+#   - 'codecov'
+#   - 'issues'
+#   - 'dependencies'
+#   - 'vulnerabilities'
+#   - 'license'
+#   - 'stars'
+#   - 'forks'
