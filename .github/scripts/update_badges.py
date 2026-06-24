@@ -12,6 +12,7 @@ BADGES_CONFIG_FILE = Path("badges.yml")
 WORKFLOWS_DIR = Path(".github/workflows")
 BADGES_TAG_RE = re.compile(r"<div class=\"badges\">.*?</div>", re.DOTALL)
 PYPI_PACKAGE_NAME = os.environ.get("PYPI_PACKAGE_NAME")
+IGNORED_WORKFLOWS = {"readme_sync"}
 
 
 def badge_registry(repo: str, visibility: str) -> Dict[str, str]:
@@ -65,9 +66,13 @@ def build_badges(repo: str, visibility: str) -> List[str]:
     # Merge workflow badges in
     registry.update(workflow_badges)
 
-    # Apply disables
+    # Apply disables from config
     for key in config.get("disable", []):
         registry.pop(key, None)
+
+    # Always ignore certain workflows
+    for name in IGNORED_WORKFLOWS:
+        registry.pop(f"workflow:{name}", None)
 
     # Apply enables (things not in defaults)
     for key in config.get("enable", []):
