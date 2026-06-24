@@ -20,8 +20,8 @@ jobs:
         id: generate-token
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.SI_APP_ID }}
-          private-key: ${{ secrets.SI_APP_KEY }}
+          client-id: ${{ secrets.REN_APP_ID }}
+          private-key: ${{ secrets.REN_APP_KEY }}
           owner: renalreg
 
       - name: Checkout repository
