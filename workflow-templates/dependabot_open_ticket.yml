@@ -24,11 +24,14 @@ jobs:
     with:
     
       project_code: ''
-      board_id: ''
-      # Description: The Jira project (space) code
+      # Description: The Jira project (space) code      
 
       # # Optional configuration.
       # # Uncomment and adjust as required.
+
+      board_id: ''
+      # Description: The Jira board ID
+      # # default: ""
 
       # issue_type:
       #   # Description: The Jira project (space) code        
