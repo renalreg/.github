@@ -1,10 +1,7 @@
 on:
-  pull_request:
-    types:
-      - opened
-
-  inputs:
-
+  workflow_call:
+    inputs:
+    
       project_code:
         type: string
         required: true
