@@ -100,6 +100,11 @@ def create_jira_issue(base_url, email, api_token, issue):
 
 def main():
     event = load_event(required_environment("GITHUB_EVENT_PATH"))
+    action = event.get("action")
+    if action != "opened":
+        print(f"::notice::Skipping pull request action {action!r}; only 'opened' creates a Jira issue")
+        return
+
     base_url = required_environment("JIRA_BASE_URL")
     issue = build_issue(
         event,
