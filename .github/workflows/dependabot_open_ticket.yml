@@ -1,34 +1,54 @@
+name: Dependabot Open Jira Ticket
+
 on:
   workflow_call:
     inputs:
-
+      
       project_code:
         type: string
         required: true
+      
+      issue_type:
+        type: string
+        default: Bug
+      
+      component:
+        type: string
+        default: Dependabot
 
 jobs:
-  dependabot-jira-advanced-creator:
+  dependabot-jira-ticket-creator:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate Token
-        uses: tibdex/github-app-token@v1
+      - name: Generate token
         id: generate-token
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.REG_APP_ID }}
-          private_key: ${{ secrets.REG_APP_KEY }}
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+          app-id: ${{ secrets.REG_APP_ID }}
+          private-key: ${{ secrets.REG_APP_KEY }}
+          owner: renalreg
+          repositories: .github
 
-      - name: Create jira ticket
-        uses: Frituurpanda/dependabot-jira-advanced@main
+      - name: Checkout shared scripts
+        uses: actions/checkout@v4
         with:
-          pat_token: ${{ steps.generate-token.outputs.token }}
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-          jira_project: ${{ inputs.project_code }}
-          jira_issue_type: 'Bug'
-          jira_field: 'Components'
-          jira_field_value: 'Dependabot'
-          cvss_threshold: 0.0
+          repository: renalreg/.github
+          ref: main
+          path: _shared
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create Jira ticket
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_PROJECT_CODE: ${{ inputs.project_code }}
+          JIRA_ISSUE_TYPE: ${{ inputs.issue_type }}
+          JIRA_COMPONENT: ${{ inputs.component }}
+        run: python _shared/.github/scripts/dependabot_open_jira_ticket.py

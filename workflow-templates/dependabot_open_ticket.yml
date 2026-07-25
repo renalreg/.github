@@ -3,7 +3,9 @@ name: Dependabot Open Ticket
 
 on:
   pull_request:
-    branches: 
+    types:
+      - opened
+    branches:
       - $default-branch
 
   workflow_dispatch:
@@ -18,4 +20,14 @@ jobs:
     with:
     
       project_code: ''
-      # Description: The Jira project (space) code 
+      # Description: The Jira project (space) code
+
+      # # Optional configuration.
+      # # Uncomment and adjust as required.
+
+      # issue_type:
+      #   # Description: The Jira project (space) code        
+      #   # Default: Bug
+      # component:
+      #   # Description: The Jira project (space) code
+      #   # Default: Dependabot
