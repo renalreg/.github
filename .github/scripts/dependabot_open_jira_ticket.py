@@ -1,9 +1,11 @@
 import base64
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
+from html.parser import HTMLParser
 
 
 def required_environment(name):
@@ -18,25 +20,159 @@ def load_event(path):
         return json.load(event_file)
 
 
-def text_node(value):
-    return {"type": "text", "text": value}
+def text_node(value, marks=None):
+    node = {"type": "text", "text": value}
+    if marks:
+        node["marks"] = marks
+    return node
+
+
+def inline_content(value):
+    content = []
+    position = 0
+    pattern = re.compile(r"!?\[([^]]*)\]\((https?://[^)\s]+)(?:\s+\"[^\"]*\")?\)")
+
+    for match in pattern.finditer(value):
+        before = value[position:match.start()]
+        if before:
+            content.append(text_node(before.replace("**", "").replace("__", "")))
+
+        label = match.group(1) or match.group(2)
+        content.append(
+            text_node(label, [{"type": "link", "attrs": {"href": match.group(2)}}])
+        )
+        position = match.end()
+
+    remaining = value[position:]
+    if remaining:
+        content.append(text_node(remaining.replace("**", "").replace("__", "")))
+
+    return content or [text_node(value)]
 
 
 def paragraph(value):
-    return {"type": "paragraph", "content": [text_node(value)]}
+    return {"type": "paragraph", "content": inline_content(value)}
+
+
+class GithubBodyParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.links = []
+
+    def newline(self):
+        if self.parts and not self.parts[-1].endswith("\n"):
+            self.parts.append("\n")
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag in {"p", "div", "blockquote", "details"}:
+            self.newline()
+        elif tag == "br":
+            self.newline()
+        elif tag == "li":
+            self.newline()
+            self.parts.append("- ")
+        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            self.newline()
+            self.parts.append(f"{'#' * int(tag[1])} ")
+        elif tag == "summary":
+            self.newline()
+            self.parts.append("### ")
+        elif tag == "a":
+            self.parts.append("[")
+            self.links.append(attributes.get("href", ""))
+        elif tag == "img":
+            alt = attributes.get("alt", "Image")
+            source = attributes.get("src", "")
+            self.parts.append(f"![{alt}]({source})" if source else alt)
+        elif tag == "code":
+            self.parts.append("`")
+
+    def handle_endtag(self, tag):
+        if tag in {"p", "div", "blockquote", "details", "li"}:
+            self.newline()
+        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6", "summary"}:
+            self.newline()
+        elif tag == "a":
+            href = self.links.pop() if self.links else ""
+            self.parts.append(f"]({href})" if href else "]")
+        elif tag == "code":
+            self.parts.append("`")
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+    def text(self):
+        return "".join(self.parts)
+
+
+def body_to_adf(body):
+    parser = GithubBodyParser()
+    parser.feed(body)
+    nodes = []
+    bullet_items = []
+
+    def flush_bullets():
+        if bullet_items:
+            nodes.append({"type": "bulletList", "content": list(bullet_items)})
+            bullet_items.clear()
+
+    for raw_line in parser.text().replace("\r", "").split("\n"):
+        line = raw_line.strip()
+        if not line:
+            flush_bullets()
+            continue
+
+        heading = re.match(r"^(#{1,6})\s+(.+)$", line)
+        if heading:
+            flush_bullets()
+            nodes.append(
+                {
+                    "type": "heading",
+                    "attrs": {"level": len(heading.group(1))},
+                    "content": inline_content(heading.group(2)),
+                }
+            )
+        elif line.startswith(("- ", "* ")):
+            bullet_items.append(
+                {
+                    "type": "listItem",
+                    "content": [paragraph(line[2:].strip())],
+                }
+            )
+        elif re.fullmatch(r"[-*_]{3,}", line):
+            flush_bullets()
+            nodes.append({"type": "rule"})
+        else:
+            flush_bullets()
+            nodes.append(paragraph(line.removeprefix("> ")))
+
+    flush_bullets()
+    return nodes or [paragraph("No pull request description was provided.")]
 
 
 def build_description(repository, pull_request):
     body = pull_request.get("body") or "No pull request description was provided."
+    pull_request_url = pull_request["html_url"]
     return {
         "type": "doc",
         "version": 1,
         "content": [
             paragraph(f"Dependabot opened pull request #{pull_request['number']} in {repository}."),
-            paragraph(f"Pull request: {pull_request['html_url']}"),
+            {
+                "type": "paragraph",
+                "content": [
+                    text_node("Pull request: "),
+                    text_node(
+                        pull_request_url,
+                        [{"type": "link", "attrs": {"href": pull_request_url}}],
+                    ),
+                ],
+            },
             paragraph(f"Dependency update: {pull_request['title']}"),
             {"type": "rule"},
-            {"type": "codeBlock", "content": [text_node(body)]},
+            *body_to_adf(body),
         ],
     }
 
