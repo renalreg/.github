@@ -20,6 +20,13 @@ def load_event(path):
         return json.load(event_file)
 
 
+def set_output(name, value):
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as output_file:
+            output_file.write(f"{name}={value}\n")
+
+
 def text_node(value, marks=None):
     node = {"type": "text", "text": value}
     if marks:
@@ -238,6 +245,16 @@ def create_jira_issue(base_url, email, api_token, issue):
 def main():
     event = load_event(required_environment("GITHUB_EVENT_PATH"))
     action = event.get("action")
+    if action == "edited":
+        previous_title = event.get("changes", {}).get("title", {}).get("from", "")
+        issue_key = re.match(r"^\[([A-Z][A-Z0-9_]*-\d+)\]\s*", previous_title)
+        if issue_key:
+            set_output("issue_key", issue_key.group(1))
+            print(f"::notice::Restoring Jira issue {issue_key.group(1)} to the PR title")
+        else:
+            print("::notice::Previous PR title did not contain a Jira issue key")
+        return
+
     if action != "opened":
         print(f"::notice::Skipping pull request action {action!r}; only 'opened' creates a Jira issue")
         return
@@ -260,10 +277,7 @@ def main():
     if not issue_key:
         raise RuntimeError(f"Jira response did not contain an issue key: {result}")
 
-    output_path = os.environ.get("GITHUB_OUTPUT")
-    if output_path:
-        with open(output_path, "a", encoding="utf-8") as output_file:
-            output_file.write(f"issue_key={issue_key}\n")
+    set_output("issue_key", issue_key)
 
     print(f"::notice::Created Jira issue {issue_key}")
     print(f"{base_url.rstrip('/')}/browse/{issue_key}")

@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Create Jira ticket
+      - name: Resolve Jira ticket
         id: create-jira-ticket
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
