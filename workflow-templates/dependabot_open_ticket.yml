@@ -24,6 +24,7 @@ jobs:
     with:
     
       project_code: ''
+      board_id: ''
       # Description: The Jira project (space) code
 
       # # Optional configuration.

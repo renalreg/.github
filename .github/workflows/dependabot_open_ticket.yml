@@ -16,6 +16,10 @@ on:
         type: string
         default: Dependabot
 
+      board_id:
+        type: string
+        default: ""
+
 jobs:
   dependabot-jira-ticket-creator:
     permissions:
@@ -46,6 +50,7 @@ jobs:
           JIRA_PROJECT_CODE: ${{ inputs.project_code }}
           JIRA_ISSUE_TYPE: ${{ inputs.issue_type }}
           JIRA_COMPONENT: ${{ inputs.component }}
+          JIRA_BOARD_ID: ${{ inputs.board_id }}
         run: python _shared/.github/scripts/dependabot_open_jira_ticket.py
 
       - name: Add Jira issue to PR title

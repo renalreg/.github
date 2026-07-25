@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 
@@ -217,29 +218,73 @@ def build_issue(event, project_code, issue_type, component):
     return {"fields": fields}
 
 
-def create_jira_issue(base_url, email, api_token, issue):
+def jira_request(base_url, email, api_token, path, method="GET", payload=None, query=None):
     credentials = base64.b64encode(f"{email}:{api_token}".encode()).decode()
+    url = f"{base_url.rstrip('/')}{path}"
+    if query:
+        url = f"{url}?{urllib.parse.urlencode(query)}"
+
     request = urllib.request.Request(
-        f"{base_url.rstrip('/')}/rest/api/3/issue",
-        data=json.dumps(issue).encode(),
+        url,
+        data=json.dumps(payload).encode() if payload is not None else None,
         headers={
             "Accept": "application/json",
             "Authorization": f"Basic {credentials}",
             "Content-Type": "application/json",
         },
-        method="POST",
+        method=method,
     )
 
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
-            return json.load(response)
+            response_body = response.read()
+            return json.loads(response_body) if response_body else {}
     except urllib.error.HTTPError as error:
         response_body = error.read().decode("utf-8", errors="replace")
         raise RuntimeError(
-            f"Jira returned HTTP {error.code} while creating the issue: {response_body}"
+            f"Jira returned HTTP {error.code} for {method} {path}: {response_body}"
         ) from error
     except urllib.error.URLError as error:
         raise RuntimeError(f"Unable to connect to Jira: {error.reason}") from error
+
+
+def create_jira_issue(base_url, email, api_token, issue):
+    return jira_request(
+        base_url,
+        email,
+        api_token,
+        "/rest/api/3/issue",
+        method="POST",
+        payload=issue,
+    )
+
+
+def get_next_future_sprint(base_url, email, api_token, board_id):
+    encoded_board_id = urllib.parse.quote(board_id, safe="")
+    result = jira_request(
+        base_url,
+        email,
+        api_token,
+        f"/rest/agile/1.0/board/{encoded_board_id}/sprint",
+        query={"state": "future", "startAt": 0, "maxResults": 50},
+    )
+    sprints = result.get("values", [])
+    if not sprints:
+        return None
+
+    dated_sprints = [sprint for sprint in sprints if sprint.get("startDate")]
+    return min(dated_sprints, key=lambda sprint: sprint["startDate"]) if dated_sprints else sprints[0]
+
+
+def add_issue_to_sprint(base_url, email, api_token, sprint_id, issue_key):
+    jira_request(
+        base_url,
+        email,
+        api_token,
+        f"/rest/agile/1.0/sprint/{sprint_id}/issue",
+        method="POST",
+        payload={"issues": [issue_key]},
+    )
 
 
 def main():
@@ -266,16 +311,37 @@ def main():
         os.environ.get("JIRA_ISSUE_TYPE", "Bug").strip() or "Bug",
         os.environ.get("JIRA_COMPONENT", "Dependabot").strip(),
     )
-    result = create_jira_issue(
-        base_url,
-        required_environment("JIRA_USER_EMAIL"),
-        required_environment("JIRA_API_TOKEN"),
-        issue,
-    )
+    email = required_environment("JIRA_USER_EMAIL")
+    api_token = required_environment("JIRA_API_TOKEN")
+    result = create_jira_issue(base_url, email, api_token, issue)
 
     issue_key = result.get("key")
     if not issue_key:
         raise RuntimeError(f"Jira response did not contain an issue key: {result}")
+
+    board_id = os.environ.get("JIRA_BOARD_ID", "").strip()
+    if board_id:
+        try:
+            sprint = get_next_future_sprint(
+                base_url, email, api_token, board_id
+            )
+            if sprint:
+                add_issue_to_sprint(
+                    base_url, email, api_token, sprint["id"], issue_key
+                )
+                print(
+                    f"::notice::Added Jira issue {issue_key} to sprint "
+                    f"{sprint.get('name', sprint['id'])}"
+                )
+            else:
+                print(
+                    f"::warning::No future sprint exists on Jira board {board_id}; "
+                    f"{issue_key} was created without a sprint"
+                )
+        except RuntimeError as error:
+            print(
+                f"::warning::Could not assign {issue_key} to the next sprint: {error}"
+            )
 
     set_output("issue_key", issue_key)
 
