@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    types:
+      - opened
+
+  inputs:
+
+      project_code:
+        type: string
+        required: true
+
+jobs:
+  dependabot-jira-advanced-creator:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.REG_APP_ID }}
+          private_key: ${{ secrets.REG_APP_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create jira ticket
+        uses: Frituurpanda/dependabot-jira-advanced@test
+        with:
+          pat_token: ${{ steps.generate-token.outputs.token }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_user_email: ${{ secrets.JIRA_USER_EMAIL }}
+          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+          jira_project: ${{ inputs.project_code }}
+          jira_issue_type: 'Bug'
+          jira_field: 'Components'
+          jira_field_value: 'Dependabot'
+          cvss_threshold: 0.0

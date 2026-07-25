@@ -1,0 +1,21 @@
+
+name: Dependabot Open Ticket
+
+on:
+  pull_request:
+    branches: 
+      - $default-branch
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Dependabot Open Ticket
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    uses: renalreg/.github/.github/workflows/dependabot_open_ticket.yml@main
+    secrets: inherit
+
+    with:
+    
+      project_code: ''
+      # Description: The Jira project (space) code 

@@ -1,0 +1,4 @@
+{
+  "name": "UKKA Dependabot open ticket",
+  "description": "Automatically opens a Jira ticket when a Dependabot PR is created."
+}
