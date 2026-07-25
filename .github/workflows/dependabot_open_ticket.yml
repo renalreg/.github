@@ -18,6 +18,9 @@ on:
 
 jobs:
   dependabot-jira-ticket-creator:
+    permissions:
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:
@@ -35,6 +38,7 @@ jobs:
           python-version: "3.11"
 
       - name: Create Jira ticket
+        id: create-jira-ticket
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
@@ -43,3 +47,16 @@ jobs:
           JIRA_ISSUE_TYPE: ${{ inputs.issue_type }}
           JIRA_COMPONENT: ${{ inputs.component }}
         run: python _shared/.github/scripts/dependabot_open_jira_ticket.py
+
+      - name: Add Jira issue to PR title
+        if: steps.create-jira-ticket.outputs.issue_key != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
+          ISSUE_KEY: ${{ steps.create-jira-ticket.outputs.issue_key }}
+        run: |
+          gh api \
+            --method PATCH \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" \
+            --field "title=[${ISSUE_KEY}] ${ORIGINAL_TITLE}"

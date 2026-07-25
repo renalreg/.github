@@ -202,6 +202,7 @@ def build_issue(event, project_code, issue_type, component):
         "summary": summary,
         "description": build_description(repository, pull_request),
         "issuetype": {"name": issue_type},
+        "priority": {"name": "Highest"},
     }
     if component:
         fields["components"] = [{"name": component}]
@@ -258,6 +259,11 @@ def main():
     issue_key = result.get("key")
     if not issue_key:
         raise RuntimeError(f"Jira response did not contain an issue key: {result}")
+
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as output_file:
+            output_file.write(f"issue_key={issue_key}\n")
 
     print(f"::notice::Created Jira issue {issue_key}")
     print(f"{base_url.rstrip('/')}/browse/{issue_key}")
