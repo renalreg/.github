@@ -292,12 +292,19 @@ def main():
     action = event.get("action")
     if action == "edited":
         previous_title = event.get("changes", {}).get("title", {}).get("from", "")
-        issue_key = re.match(r"^\[([A-Z][A-Z0-9_]*-\d+)\]\s*", previous_title)
+        current_title = event.get("pull_request", {}).get("title", "")
+        issue_key = re.match(
+            r"^\[([A-Z][A-Z0-9_]*-\d+)\]\s*",
+            previous_title,
+        ) or re.match(
+            r"^\[([A-Z][A-Z0-9_]*-\d+)\]\s*",
+            current_title,
+        )
         if issue_key:
             set_output("issue_key", issue_key.group(1))
-            print(f"::notice::Restoring Jira issue {issue_key.group(1)} to the PR title")
+            print(f"::notice::Resolved Jira issue {issue_key.group(1)} from the PR title")
         else:
-            print("::notice::Previous PR title did not contain a Jira issue key")
+            print("::notice::PR title edit did not contain a Jira issue key")
         return
 
     if action != "opened":

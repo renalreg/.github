@@ -24,6 +24,7 @@ jobs:
   dependabot-jira-ticket-creator:
     permissions:
       contents: read
+      issues: write
       pull-requests: write
     runs-on: ubuntu-latest
 
@@ -53,15 +54,54 @@ jobs:
           JIRA_BOARD_ID: ${{ inputs.board_id }}
         run: python _shared/.github/scripts/dependabot_open_jira_ticket.py
 
-      - name: Add Jira issue to PR title
+      - name: Store Jira issue on PR
         if: steps.create-jira-ticket.outputs.issue_key != ''
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
           ISSUE_KEY: ${{ steps.create-jira-ticket.outputs.issue_key }}
         run: |
-          gh api \
-            --method PATCH \
-            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" \
-            --field "title=[${ISSUE_KEY}] ${ORIGINAL_TITLE}"
+          marker="<!-- dependabot-jira-key:${ISSUE_KEY} -->"
+          exists=$(gh api \
+            --paginate \
+            --slurp \
+            "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --jq "[.[][] | .body | startswith(\"${marker}\")] | any")
+          if [[ "${exists}" != "true" ]]; then
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --field "body=${marker} Linked Jira issue: ${ISSUE_KEY}"
+          fi
+
+      - name: Recover Jira issue from PR
+        id: recover-jira-ticket
+        if: github.event.action != 'opened' && steps.create-jira-ticket.outputs.issue_key == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          issue_key=$(gh api \
+            --paginate \
+            --slurp \
+            "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --jq '[.[][] | .body | select(test("^<!-- dependabot-jira-key:[A-Z][A-Z0-9_]*-[0-9]+ -->")) | capture("^<!-- dependabot-jira-key:(?<key>[A-Z][A-Z0-9_]*-[0-9]+) -->").key] | last // empty')
+          if [[ -n "${issue_key}" ]]; then
+            echo "issue_key=${issue_key}" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Add Jira issue to PR title
+        if: (steps.create-jira-ticket.outputs.issue_key || steps.recover-jira-ticket.outputs.issue_key) != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
+          ISSUE_KEY: ${{ steps.create-jira-ticket.outputs.issue_key || steps.recover-jira-ticket.outputs.issue_key }}
+        run: |
+          prefix="[${ISSUE_KEY}] "
+          if [[ "${ORIGINAL_TITLE}" != "${prefix}"* ]]; then
+            gh api \
+              --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" \
+              --field "title=${prefix}${ORIGINAL_TITLE}"
+          fi

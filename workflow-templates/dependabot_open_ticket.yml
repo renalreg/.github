@@ -6,6 +6,7 @@ on:
     types:
       - opened
       - edited
+      - synchronize
     branches:
       - $default-branch
 
@@ -17,6 +18,7 @@ jobs:
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     permissions:
       contents: read
+      issues: write
       pull-requests: write
     uses: renalreg/.github/.github/workflows/dependabot_open_ticket.yml@main
     secrets: inherit
