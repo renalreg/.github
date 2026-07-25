@@ -21,14 +21,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate token
+      - name: Generate a token
         id: generate-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.REG_APP_ID }}
-          private-key: ${{ secrets.REG_APP_KEY }}
+          client-id: ${{ secrets.REN_APP_ID }}
+          private-key: ${{ secrets.REN_APP_KEY }}
           owner: renalreg
-          repositories: .github
 
       - name: Checkout shared scripts
         uses: actions/checkout@v4
