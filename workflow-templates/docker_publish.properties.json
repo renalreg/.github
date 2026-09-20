@@ -1,0 +1,4 @@
+{
+  "name": "UKKA Docker Publish",
+  "description": "Builds a Docker image and pushes it to GHCR so it can be pulled onto servers. Supports private org dependencies via a GitHub App token passed as a build secret."
+}

@@ -1,0 +1,40 @@
+# 📘 Full documentation:
+# https://github.com/renalreg/.github/blob/main/README.md#docker_publish
+
+name: Docker Publish
+
+on:
+  release:
+    types:
+      - published
+
+  push:
+    branches:
+      - $default-branch
+
+  pull_request:
+    branches:
+      - $default-branch
+
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    name: Build and push image to GHCR
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
+    uses: renalreg/.github/.github/workflows/docker_publish.yml@main
+    secrets: inherit
+
+    # # Optional configuration.
+    # # Uncomment and adjust as required.
+    #
+    # with:
+    #
+    #   build_args: |
+    #     APP_ENV=production
+    #   # Description: Newline separated build arguments
+    #   # Default: ""
+    #
+    #   org_deps: true
+    #   # Description: Boolean, is private repo access required by dependencies
+    #   # Default: false
